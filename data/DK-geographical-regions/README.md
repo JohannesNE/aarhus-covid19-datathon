@@ -1,7 +1,6 @@
 Visualizing data on a map with {ggplot2} and {sf}
 ================
 Johannes Enevoldsen
-6/25/2021
 
 > This document generated is from `README.rmd`
 
@@ -24,7 +23,8 @@ library(tidyverse) # loads ggplot2 and a number of other packages incl. dplyr an
 library(sf)
 ```
 
-First, load the municipality (“KOMMUNE”) layer from the shapefile.
+First, load the municipality (“KOMMUNE”) layer from the shapefile. Other
+relevant layers are “REGION” and “SOGN”.
 
 ``` r
 sf_municipality <- read_sf("SHAPEFILE-DK/", layer = "KOMMUNE")
@@ -86,10 +86,11 @@ not really a municipality, and not part of another municipality. It’s
 administered by the Departement of Defense. We can probably safely
 ignore this.
 
-Join the GP data to the sf data. The order is important (sf data first),
-since the returned variable `gp_contacts_w_sf` must be of class “sf”
-(with the respective metadata) for `geom_sf()` and `coord_sf()` to do
-its magic 🪄
+Join the GP data to the sf data.
+
+> :exclamation:️ The orderin the join statement is important (sf data
+> first), since the returned variable `gp_contacts_w_sf` must be of
+> class “sf” for `geom_sf()` and `coord_sf()` to do its magic 🪄
 
 ``` r
 gp_contacts_w_sf <- left_join(sf_municipality, gp_contacts, by = c("KOMNAVN" = "Kommune"))
