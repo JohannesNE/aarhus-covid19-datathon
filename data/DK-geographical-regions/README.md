@@ -20,7 +20,7 @@ handle the geospatial data and
 [{ggplot2}](https://ggplot2.tidyverse.org/) to draw it.
 
 ``` r
-library(tidyverse)
+library(tidyverse) # loads ggplot2 and a number of other packages incl. dplyr and readr
 library(sf)
 ```
 

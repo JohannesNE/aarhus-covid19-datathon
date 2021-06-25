@@ -22,7 +22,7 @@ The shapefile used is *Danmarks Administrative Geografiske Inddeling 1:2 mio* do
 We will use the package [{sf}](https://r-spatial.github.io/sf/) to handle the geospatial data and [{ggplot2}](https://ggplot2.tidyverse.org/) to draw it.
 
 ```{r}
-library(tidyverse)
+library(tidyverse) # loads ggplot2 and a number of other packages incl. dplyr and readr
 library(sf)
 ```
 
