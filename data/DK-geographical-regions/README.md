@@ -3,7 +3,7 @@ Visualizing data on a map with {ggplot2} and {sf}
 Johannes Enevoldsen
 6/25/2021
 
-> This document generated from `README.rmd`
+> This document generated is from `README.rmd`
 
 This vignette demonstrates how to draw maps of different administrative
 divisions of Denmark (municipalities and regions), and how to decorate
@@ -16,7 +16,8 @@ redistributed according to [terms and
 conditions](https://download.kortforsyningen.dk/content/vilk%C3%A5r-og-betingelser).
 
 We will use the package [{sf}](https://r-spatial.github.io/sf/) to
-handle the geospatial data and {ggplot2} to draw it.
+handle the geospatial data and
+[{ggplot2}](https://ggplot2.tidyverse.org/) to draw it.
 
 ``` r
 library(tidyverse)
@@ -80,13 +81,14 @@ c(
 
 Oh well… [Christiansø](https://da.wikipedia.org/wiki/Christians%C3%B8)
 is a small island northeast of Bornholm. It has 90 inhabitants, it is
-not really a municipality, and not part of an other municipality. It’s
-administered by the Defense Dept. We can probably safely ignore this.
+not really a municipality, and not part of another municipality. It’s
+administered by the Departement of Defense. We can probably safely
+ignore this.
 
-Join the gp data to the sf data. The order is important (sf data first),
+Join the GP data to the sf data. The order is important (sf data first),
 since the returned variable `gp_contacts_w_sf` must be of class “sf”
 (with the respective metadata) for `geom_sf()` and `coord_sf()` to do
-its magic!
+its magic 🪄
 
 ``` r
 gp_contacts_w_sf <- left_join(sf_municipality, gp_contacts, by = c("KOMNAVN" = "Kommune"))
