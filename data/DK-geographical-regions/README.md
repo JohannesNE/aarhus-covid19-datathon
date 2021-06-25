@@ -31,7 +31,8 @@ sf_municipality <- read_sf("SHAPEFILE-DK/", layer = "KOMMUNE")
 ```
 
 This returns a data frame (tibble) with some metadata. Here, we are
-mainly interested in the columns `KOMNAVN` (name) and `geometry`.
+mainly interested in the columns `KOMNAVN` (name of municipality) and
+`geometry`.
 
 Let’s draw.
 
@@ -96,7 +97,9 @@ gp_contacts_w_sf <- left_join(sf_municipality, gp_contacts, by = c("KOMNAVN" = "
 ggplot(gp_contacts_w_sf, aes(fill = n_contacts)) + 
     geom_sf(aes(fill = n_contacts)) +
     coord_sf() +
-    scale_fill_viridis_c()
+    scale_fill_viridis_c(label = scales::label_number_si()) + 
+    labs(title = "Number of contacts to a general practitioner in 2020",
+         fill = "# contacts")
 ```
 
 ![](figs/unnamed-chunk-6-1.png)<!-- -->
