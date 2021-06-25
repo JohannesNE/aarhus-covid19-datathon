@@ -88,9 +88,9 @@ ignore this.
 
 Join the GP data to the sf data.
 
-> :exclamation:️ The orderin the join statement is important (sf data
-> first), since the returned variable `gp_contacts_w_sf` must be of
-> class “sf” for `geom_sf()` and `coord_sf()` to do its magic 🪄
+> ⚠️ The order in the join statement is important (sf data first), since
+> the returned variable `gp_contacts_w_sf` must be of class “sf” for
+> `geom_sf()` and `coord_sf()` to do its magic 🪄
 
 ``` r
 gp_contacts_w_sf <- left_join(sf_municipality, gp_contacts, by = c("KOMNAVN" = "Kommune"))
