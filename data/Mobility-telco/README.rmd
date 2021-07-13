@@ -47,7 +47,26 @@ str(telco_list, list.len = 2) # Print structure
 theme_set(jenevoldsen::theme_bw2())
 ```
 
-The structure is a list of municipalities, that each contain a list of municipalities, that each contain a vector of number of daily trips between the pair of municipalities (the direction is unknown). `telco_list$Aalborg$Frederikshavn` are trips between Aalborg and Frederikshavn, `telco_list$Aalborg$Aalborg` are trips within Aalborg, and ``telco_list$Aalborg$`_Aalborg` `` are all trips involving Aalborg. 
+The structure is a list of municipalities, that each contain a list of municipalities, that each contain a vector of number of daily trips between the pair of municipalities (the direction is unknown). `telco_list$Aalborg$Frederikshavn` are trips between Aalborg and Frederikshavn, `telco_list$Aalborg$Aalborg` are trips within Aalborg, and ``telco_list$Aalborg$`_Aalborg` `` are all trips involving Aalborg.
+
+First, if the direction is unknown, `telco_list$Aalborg$Frederikshavn` should be identical to `telco_list$Frederikshavn$Aalborg`
+
+```{r}
+identical(telco_list$Aalborg$Frederikshavn, telco_list$Frederikshavn$Aalborg)
+```
+
+We can check that for all combinations:
+
+```{r}
+municipalities <- names(telco_list[1:98]) # skip $_meta
+
+for(mun1 in municipalities) {
+    for(mun2 in municipalities) {
+        stopifnot(identical(telco_list[[mun1]][[mun2]], telco_list[[mun2]][[mun1]]))
+    } 
+}
+```
+
 
 The vector of daily trips (e.g. `telco_list$Aabenraa$Aalborg`) corresponds to the dates in ``telco_list$`_meta`$datetime``. I cases where the vector of daily trips is shorter than the number of days, the trips correspond to the first dates, and the missing values are zero.
 
@@ -98,7 +117,7 @@ ggplot(aes(date, trips, color = municip2)) +
 We should be cautious with long trips (e.g Aarhus <--> Aabenraa), since they can end up being registered as multiple smaller trips instead. Telecompanies register end-of-trip differently, so a change in long trips may be caused by a change in reporting rather than a change in traveling behavior (e.g. in February 2021).
 
 ```{r}
-filter(telco_trips_df, municip1 == "Århus", municip2 == "Aabenraa") %>% 
+filter(telco_trips_df, (municip1 == "Århus" & municip2 == "Aabenraa") | (municip1 == "Århus" & municip2 == "Aabenraa")) %>% 
 ggplot(aes(date, trips, color = municip2)) + 
     geom_line() +
     labs(title = "Daily trips between Aarhus and Aabenraa")
