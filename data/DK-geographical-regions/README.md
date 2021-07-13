@@ -2,7 +2,7 @@ Visualizing data on a map with {ggplot2} and {sf}
 ================
 Johannes Enevoldsen
 
-> This document generated is from `README.rmd`
+> This document is generated from [README.rmd](README.rmd)
 
 This vignette demonstrates how to draw maps of different administrative
 divisions of Denmark (municipalities and regions), and how to decorate

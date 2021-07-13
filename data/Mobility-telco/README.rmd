@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 ```
 
-> This document is generated from `README.rmd`
+> This document is generated from [README.rmd](README.rmd)
 
 Mobility data based on the movement of mobile phones between telephone towers in Denmark is available from <https://covid19.compute.dtu.dk/>. The data is collected and aggregated from different network providers as described [here](https://covid19.compute.dtu.dk/data-description/telco_data/).
 

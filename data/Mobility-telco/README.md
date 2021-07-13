@@ -2,7 +2,7 @@ Mobility of mobile phones in Denmark
 ================
 Johannes Enevoldsen
 
-> This document is generated from `README.rmd`
+> This document is generated from [README.rmd](README.rmd)
 
 Mobility data based on the movement of mobile phones between telephone
 towers in Denmark is available from <https://covid19.compute.dtu.dk/>.
