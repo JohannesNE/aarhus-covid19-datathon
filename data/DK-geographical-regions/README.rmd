@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
   
-  > This document generated is from `README.rmd`
+  > This document is generated from `README.rmd`
 
 This vignette demonstrates how to draw maps of different administrative divisions of Denmark (municipalities and regions), and how to decorate the map with geographically anchored data.
 
