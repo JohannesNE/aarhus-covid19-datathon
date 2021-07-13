@@ -53,6 +53,27 @@ between the pair of municipalities (the direction is unknown).
 Frederikshavn, `telco_list$Aalborg$Aalborg` are trips within Aalborg,
 and `` telco_list$Aalborg$`_Aalborg` `` are all trips involving Aalborg.
 
+First, if the direction is unknown, `telco_list$Aalborg$Frederikshavn`
+should be identical to `telco_list$Frederikshavn$Aalborg`
+
+``` r
+identical(telco_list$Aalborg$Frederikshavn, telco_list$Frederikshavn$Aalborg)
+```
+
+    ## [1] TRUE
+
+We can check that for all combinations:
+
+``` r
+municipalities <- names(telco_list[1:98]) # skip $_meta
+
+for(mun1 in municipalities) {
+    for(mun2 in municipalities) {
+        stopifnot(identical(telco_list[[mun1]][[mun2]], telco_list[[mun2]][[mun1]]))
+    } 
+}
+```
+
 The vector of daily trips (e.g. `telco_list$Aabenraa$Aalborg`)
 corresponds to the dates in `` telco_list$`_meta`$datetime ``. I cases
 where the vector of daily trips is shorter than the number of days, the
@@ -117,7 +138,7 @@ ggplot(aes(date, trips, color = municip2)) +
     labs(title = "Daily trips to/from Aarhus")
 ```
 
-![](figs/unnamed-chunk-6-1.png)<!-- -->
+![](figs/unnamed-chunk-8-1.png)<!-- -->
 
 We should be cautious with long trips (e.g Aarhus &lt;–&gt; Aabenraa),
 since they can end up being registered as multiple smaller trips
@@ -126,10 +147,10 @@ long trips may be caused by a change in reporting rather than a change
 in traveling behavior (e.g. in February 2021).
 
 ``` r
-filter(telco_trips_df, municip1 == "Århus", municip2 == "Aabenraa") %>% 
+filter(telco_trips_df, (municip1 == "Århus" & municip2 == "Aabenraa") | (municip1 == "Århus" & municip2 == "Aabenraa")) %>% 
 ggplot(aes(date, trips, color = municip2)) + 
     geom_line() +
     labs(title = "Daily trips between Aarhus and Aabenraa")
 ```
 
-![](figs/unnamed-chunk-7-1.png)<!-- -->
+![](figs/unnamed-chunk-9-1.png)<!-- -->
