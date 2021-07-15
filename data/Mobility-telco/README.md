@@ -205,7 +205,7 @@ telco_dir_array <- with(telco_dir_list,
                         )
                     )
 
-# All dates from Aalborg to Aarhus
+# All dates from Aarhus to Aalborg
 plot(telco_dir_array["Aalborg", "Århus", ])
 ```
 
