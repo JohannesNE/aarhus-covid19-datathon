@@ -21,6 +21,8 @@ Mobility data based on the movement of mobile phones between telephone towers in
 
 A data file containing the number of movements between each combination of municipalities each day can be downloaded from the website:
 
+> In this dataset, directions of travel are unknown. A directional dataset is also available. See the bottom of this page.
+
 ```{r message=FALSE}
 telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
 
@@ -29,9 +31,6 @@ if(!file.exists("telco_map_new.json")) {
     download.file(telco_link, destfile = "telco_map_new.json")
 }
 ```
-
-
-
 
 The data is provided as a .json file (a text based data format commonly used in web applications). We can read it into R as a list using the {jsonlite} package. We'll also use {tidyverse}.
 
@@ -121,5 +120,81 @@ filter(telco_trips_df, (municip1 == "Århus" & municip2 == "Aabenraa") | (munici
 ggplot(aes(date, trips, color = municip2)) + 
     geom_line() +
     labs(title = "Daily trips between Aarhus and Aabenraa")
+```
+
+# Directional data
+
+Team from covid19.compute.dtu.dk has also kindly provided directional travel data. This is not visualized on the website.
+
+First, we download the data.
+
+```{r message=FALSE}
+telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
+
+# The file is large (> 61 MB) so only download if missing (or outdated)
+if(!file.exists("telco_data.json")) {
+    download.file(telco_link, destfile = "telco_data.json")
+}
+```
+
+... and load it.
+
+```{r, message=FALSE}
+telco_dir_list <- fromJSON("telco_data.json") # Load json file
+
+str(telco_dir_list) # Print structure
+```
+
+`telco_dir_list$data` is a matrix with columns corresponding to dates and rows corresponding to each unique origin-destination combination (location[1] -> location[1], location[1] -> location[2],
+location[1] -> location[3], location[2] -> location[1] ...).
+
+This time, the quite close to a 3D array to begin with. We can wrap this matrix into a 3D array. 
+
+```{r}
+telco_dir_array <- with(telco_dir_list, 
+                        array(data, dim = c(98, 98, 516), 
+                          dimnames = list(
+                             dest = locations, 
+                             origin = locations,
+                             date = as.character(as.Date(dates)))
+                        )
+                    )
+
+# All dates from Aalborg to Aarhus
+plot(telco_dir_array["Aalborg", "Århus", ])
+```
+
+Now, R has a function that turns a named array into a table, and then into a data.frame (`as.data.frame.table`)
+
+```{r}
+telco_dir_df <- as.data.frame.table(telco_dir_array, responseName = "trips") %>% 
+    mutate(date = as.Date(date)) %>% 
+    relocate(date, origin)
+head(telco_dir_df)
+```
+
+Both directions summed over a day will of cause be similar, since most people travel away and back on the same day, adding to both directions equally. There may still be some extra information in this data. Especially in relation to weekends and holidays.
+
+```{r}
+trips_aarhus_skanderborg <- telco_dir_df %>% 
+    filter((origin == "Århus" & dest == "Skanderborg") | (origin == "Skanderborg" & dest == "Århus")) 
+
+trips_aarhus_skanderborg %>% 
+    ggplot(aes(date, trips, color = dest)) +
+    geom_point() +
+    scale_x_date(breaks = scales::date_breaks(width = "2 month")) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+The distinct bands could be weekdays and weekends.
+
+```{r}
+trips_aarhus_skanderborg %>% 
+    mutate(wday = lubridate::wday(date, label = TRUE, week_start = 1)) %>% 
+    ggplot(aes(date, trips, color = dest)) +
+    geom_point() +
+    scale_x_date(breaks = scales::date_breaks(width = "3 month")) +
+    facet_wrap(~wday) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
 

@@ -13,6 +13,9 @@ described
 A data file containing the number of movements between each combination
 of municipalities each day can be downloaded from the website:
 
+> In this dataset, directions of travel are unknown. A directional
+> dataset is also available. See the bottom of this page.
+
 ``` r
 telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
 
@@ -154,3 +157,111 @@ ggplot(aes(date, trips, color = municip2)) +
 ```
 
 ![](figs/unnamed-chunk-9-1.png)<!-- -->
+
+# Directional data
+
+Team from covid19.compute.dtu.dk has also kindly provided directional
+travel data. This is not visualized on the website.
+
+First, we download the data.
+
+``` r
+telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
+
+# The file is large (> 61 MB) so only download if missing (or outdated)
+if(!file.exists("telco_data.json")) {
+    download.file(telco_link, destfile = "telco_data.json")
+}
+```
+
+… and load it.
+
+``` r
+telco_dir_list <- fromJSON("telco_data.json") # Load json file
+
+str(telco_dir_list) # Print structure
+```
+
+    ## List of 3
+    ##  $ data     : num [1:9604, 1:516] 3.23e+05 1.87e+02 0.00 6.72 7.25e+02 ...
+    ##  $ locations: chr [1:98] "Aabenraa" "Aalborg" "Albertslund" "Allerød" ...
+    ##  $ dates    : chr [1:516] "2020-02-01 00:00:00" "2020-02-02 00:00:00" "2020-02-03 00:00:00" "2020-02-04 00:00:00" ...
+
+`telco_dir_list$data` is a matrix with columns corresponding to dates
+and rows corresponding to each unique origin-destination combination
+(location\[1\] -&gt; location\[1\], location\[1\] -&gt; location\[2\],
+location\[1\] -&gt; location\[3\], location\[2\] -&gt; location\[1\] …).
+
+This time, the quite close to a 3D array to begin with. We can wrap this
+matrix into a 3D array.
+
+``` r
+telco_dir_array <- with(telco_dir_list, 
+                        array(data, dim = c(98, 98, 516), 
+                          dimnames = list(
+                             dest = locations, 
+                             origin = locations,
+                             date = as.character(as.Date(dates)))
+                        )
+                    )
+
+# All dates from Aalborg to Aarhus
+plot(telco_dir_array["Aalborg", "Århus", ])
+```
+
+![](figs/unnamed-chunk-12-1.png)<!-- -->
+
+Now, R has a function that turns a named array into a table, and then
+into a data.frame (`as.data.frame.table`)
+
+``` r
+telco_dir_df <- as.data.frame.table(telco_dir_array, responseName = "trips") %>% 
+    mutate(date = as.Date(date)) %>% 
+    relocate(date, origin)
+head(telco_dir_df)
+```
+
+<div class="kable-table">
+
+| date       | origin   | dest        |        trips |
+|:-----------|:---------|:------------|-------------:|
+| 2020-02-01 | Aabenraa | Aabenraa    | 3.231621e+05 |
+| 2020-02-01 | Aabenraa | Aalborg     | 1.865877e+02 |
+| 2020-02-01 | Aabenraa | Albertslund | 0.000000e+00 |
+| 2020-02-01 | Aabenraa | Allerød     | 6.717156e+00 |
+| 2020-02-01 | Aabenraa | Assens      | 7.245214e+02 |
+| 2020-02-01 | Aabenraa | Ballerup    | 0.000000e+00 |
+
+</div>
+
+Both directions summed over a day will of cause be similar, since most
+people travel away and back on the same day, adding to both directions
+equally. There may still be some extra information in this data.
+Especially in relation to weekends and holidays.
+
+``` r
+trips_aarhus_skanderborg <- telco_dir_df %>% 
+    filter((origin == "Århus" & dest == "Skanderborg") | (origin == "Skanderborg" & dest == "Århus")) 
+
+trips_aarhus_skanderborg %>% 
+    ggplot(aes(date, trips, color = dest)) +
+    geom_point() +
+    scale_x_date(breaks = scales::date_breaks(width = "2 month")) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+![](figs/unnamed-chunk-14-1.png)<!-- -->
+
+The distinct bands could be weekdays and weekends.
+
+``` r
+trips_aarhus_skanderborg %>% 
+    mutate(wday = lubridate::wday(date, label = TRUE, week_start = 1)) %>% 
+    ggplot(aes(date, trips, color = dest)) +
+    geom_point() +
+    scale_x_date(breaks = scales::date_breaks(width = "3 month")) +
+    facet_wrap(~wday) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+![](figs/unnamed-chunk-15-1.png)<!-- -->
