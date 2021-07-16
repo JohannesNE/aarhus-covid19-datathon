@@ -145,8 +145,8 @@ telco_dir_list <- fromJSON("telco_data.json") # Load json file
 str(telco_dir_list) # Print structure
 ```
 
-`telco_dir_list$data` is a matrix with columns corresponding to dates and rows corresponding to each unique origin-destination combination (location[1] -> location[1], location[1] -> location[2],
-location[1] -> location[3], location[2] -> location[1] ...).
+`telco_dir_list$data` is a matrix with columns corresponding to dates and rows corresponding to each unique origin-destination combination (location[1] -> location[1], location[2] -> location[1],
+location[3] -> location[1] ... location[1] -> location[2], location[2] -> location[2] ...).
 
 This time, the quite close to a 3D array to begin with. We can wrap this matrix into a 3D array. 
 
@@ -154,13 +154,13 @@ This time, the quite close to a 3D array to begin with. We can wrap this matrix 
 telco_dir_array <- with(telco_dir_list, 
                         array(data, dim = c(98, 98, 516), 
                           dimnames = list(
-                             dest = locations, 
                              origin = locations,
+                             dest = locations, 
                              date = as.character(as.Date(dates)))
                         )
                     )
 
-# All dates from Aarhus to Aalborg
+# All dates from Aalborg to Aarhus
 plot(telco_dir_array["Aalborg", "Århus", ])
 ```
 
@@ -196,5 +196,18 @@ trips_aarhus_skanderborg %>%
     scale_x_date(breaks = scales::date_breaks(width = "3 month")) +
     facet_wrap(~wday) +
     theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+We can see a slight indication, that more people commute from Aarhus to Skanderborg on Saturday and from Skanderborg to Aarhus on Monday.
+
+## Bonus - Grid expansion approach
+
+If you do not really care about the 3D array, you can make a long format data frame directly (and faster) by unrolling the matrix into a vector (by column) and binding the this with a grid expansion of the three dimensions (origin, destination and date).
+
+```{r}
+with(telco_dir_list, 
+     bind_cols(expand.grid(origin = locations, dest = locations, date = as.Date(dates)), 
+               trips = as.vector(data))
+) %>% head
 ```
 

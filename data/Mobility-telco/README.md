@@ -189,8 +189,9 @@ str(telco_dir_list) # Print structure
 
 `telco_dir_list$data` is a matrix with columns corresponding to dates
 and rows corresponding to each unique origin-destination combination
-(location\[1\] -&gt; location\[1\], location\[1\] -&gt; location\[2\],
-location\[1\] -&gt; location\[3\], location\[2\] -&gt; location\[1\] …).
+(location\[1\] -&gt; location\[1\], location\[2\] -&gt; location\[1\],
+location\[3\] -&gt; location\[1\] … location\[1\] -&gt; location\[2\],
+location\[2\] -&gt; location\[2\] …).
 
 This time, the quite close to a 3D array to begin with. We can wrap this
 matrix into a 3D array.
@@ -199,13 +200,13 @@ matrix into a 3D array.
 telco_dir_array <- with(telco_dir_list, 
                         array(data, dim = c(98, 98, 516), 
                           dimnames = list(
-                             dest = locations, 
                              origin = locations,
+                             dest = locations, 
                              date = as.character(as.Date(dates)))
                         )
                     )
 
-# All dates from Aarhus to Aalborg
+# All dates from Aalborg to Aarhus
 plot(telco_dir_array["Aalborg", "Århus", ])
 ```
 
@@ -223,14 +224,14 @@ head(telco_dir_df)
 
 <div class="kable-table">
 
-| date       | origin   | dest        |        trips |
-|:-----------|:---------|:------------|-------------:|
-| 2020-02-01 | Aabenraa | Aabenraa    | 3.231621e+05 |
-| 2020-02-01 | Aabenraa | Aalborg     | 1.865877e+02 |
-| 2020-02-01 | Aabenraa | Albertslund | 0.000000e+00 |
-| 2020-02-01 | Aabenraa | Allerød     | 6.717156e+00 |
-| 2020-02-01 | Aabenraa | Assens      | 7.245214e+02 |
-| 2020-02-01 | Aabenraa | Ballerup    | 0.000000e+00 |
+| date       | origin      | dest     |        trips |
+|:-----------|:------------|:---------|-------------:|
+| 2020-02-01 | Aabenraa    | Aabenraa | 3.231621e+05 |
+| 2020-02-01 | Aalborg     | Aabenraa | 1.865877e+02 |
+| 2020-02-01 | Albertslund | Aabenraa | 0.000000e+00 |
+| 2020-02-01 | Allerød     | Aabenraa | 6.717156e+00 |
+| 2020-02-01 | Assens      | Aabenraa | 7.245214e+02 |
+| 2020-02-01 | Ballerup    | Aabenraa | 0.000000e+00 |
 
 </div>
 
@@ -265,3 +266,33 @@ trips_aarhus_skanderborg %>%
 ```
 
 ![](figs/unnamed-chunk-15-1.png)<!-- -->
+
+We can see a slight indication, that more people commute from Aarhus to
+Skanderborg on Saturday and from Skanderborg to Aarhus on Monday.
+
+## Bonus - Grid expansion approach
+
+If you do not really care about the 3D array, you can make a long format
+data frame directly (and faster) by unrolling the matrix into a vector
+(by column) and binding the this with a grid expansion of the three
+dimensions (origin, destination and date).
+
+``` r
+with(telco_dir_list, 
+     bind_cols(expand.grid(origin = locations, dest = locations, date = as.Date(dates)), 
+               trips = as.vector(data))
+) %>% head
+```
+
+<div class="kable-table">
+
+| origin      | dest     | date       |        trips |
+|:------------|:---------|:-----------|-------------:|
+| Aabenraa    | Aabenraa | 2020-02-01 | 3.231621e+05 |
+| Aalborg     | Aabenraa | 2020-02-01 | 1.865877e+02 |
+| Albertslund | Aabenraa | 2020-02-01 | 0.000000e+00 |
+| Allerød     | Aabenraa | 2020-02-01 | 6.717156e+00 |
+| Assens      | Aabenraa | 2020-02-01 | 7.245214e+02 |
+| Ballerup    | Aabenraa | 2020-02-01 | 0.000000e+00 |
+
+</div>
