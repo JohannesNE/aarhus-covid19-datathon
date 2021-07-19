@@ -24,10 +24,10 @@ A data file containing the number of movements between each combination of munic
 > In this dataset, directions of travel are unknown. A directional dataset is also available. See the bottom of this page.
 
 ```{r message=FALSE}
-telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
 
 # The file is large (>17 MB) so only download if missing (or outdated)
 if(!file.exists("telco_map_new.json")) {
+    telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
     download.file(telco_link, destfile = "telco_map_new.json")
 }
 ```
@@ -129,10 +129,10 @@ Team from covid19.compute.dtu.dk has also kindly provided directional travel dat
 First, we download the data.
 
 ```{r message=FALSE}
-telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
 
 # The file is large (> 61 MB) so only download if missing (or outdated)
 if(!file.exists("telco_data.json")) {
+    telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
     download.file(telco_link, destfile = "telco_data.json")
 }
 ```
@@ -145,8 +145,8 @@ telco_dir_list <- fromJSON("telco_data.json") # Load json file
 str(telco_dir_list) # Print structure
 ```
 
-`telco_dir_list$data` is a matrix with columns corresponding to dates and rows corresponding to each unique origin-destination combination (location[1] -> location[1], location[2] -> location[1],
-location[3] -> location[1] ... location[1] -> location[2], location[2] -> location[2] ...).
+`telco_dir_list$data` is a matrix with columns corresponding to dates and rows corresponding to each unique origin-destination combination (location[1] -> location[1], location[1] -> location[2],
+location[1] -> location[3] ... location[2] -> location[1], location[2] -> location[2] ...).
 
 This time, the quite close to a 3D array to begin with. We can wrap this matrix into a 3D array. 
 
@@ -154,13 +154,13 @@ This time, the quite close to a 3D array to begin with. We can wrap this matrix 
 telco_dir_array <- with(telco_dir_list, 
                         array(data, dim = c(98, 98, 516), 
                           dimnames = list(
-                             origin = locations,
                              dest = locations, 
+                             origin = locations,
                              date = as.character(as.Date(dates)))
                         )
                     )
 
-# All dates from Aalborg to Aarhus
+# All dates from Aarhus to Aalborg
 plot(telco_dir_array["Aalborg", "Århus", ])
 ```
 
@@ -206,7 +206,7 @@ If you do not really care about the 3D array, you can make a long format data fr
 
 ```{r}
 with(telco_dir_list, 
-     bind_cols(expand.grid(origin = locations, dest = locations, date = as.Date(dates)), 
+     bind_cols(expand.grid(dest = locations, origin = locations, date = as.Date(dates)), 
                trips = as.vector(data))
 ) %>% head
 ```

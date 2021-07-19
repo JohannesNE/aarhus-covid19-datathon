@@ -17,10 +17,9 @@ of municipalities each day can be downloaded from the website:
 > dataset is also available. See the bottom of this page.
 
 ``` r
-telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
-
 # The file is large (>17 MB) so only download if missing (or outdated)
 if(!file.exists("telco_map_new.json")) {
+    telco_link <- "https://covid19.compute.dtu.dk/data/telco_map_new.json"
     download.file(telco_link, destfile = "telco_map_new.json")
 }
 ```
@@ -166,10 +165,9 @@ travel data. This is not visualized on the website.
 First, we download the data.
 
 ``` r
-telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
-
 # The file is large (> 61 MB) so only download if missing (or outdated)
 if(!file.exists("telco_data.json")) {
+    telco_link <- "https://covid19.compute.dtu.dk/data/telco_data.json"
     download.file(telco_link, destfile = "telco_data.json")
 }
 ```
@@ -183,14 +181,14 @@ str(telco_dir_list) # Print structure
 ```
 
     ## List of 3
-    ##  $ data     : num [1:9604, 1:516] 3.23e+05 1.87e+02 0.00 6.72 7.25e+02 ...
+    ##  $ data     : num [1:9604, 1:516] 323162 405 0 0 690 ...
     ##  $ locations: chr [1:98] "Aabenraa" "Aalborg" "Albertslund" "Allerød" ...
     ##  $ dates    : chr [1:516] "2020-02-01 00:00:00" "2020-02-02 00:00:00" "2020-02-03 00:00:00" "2020-02-04 00:00:00" ...
 
 `telco_dir_list$data` is a matrix with columns corresponding to dates
 and rows corresponding to each unique origin-destination combination
-(location\[1\] -&gt; location\[1\], location\[2\] -&gt; location\[1\],
-location\[3\] -&gt; location\[1\] … location\[1\] -&gt; location\[2\],
+(location\[1\] -&gt; location\[1\], location\[1\] -&gt; location\[2\],
+location\[1\] -&gt; location\[3\] … location\[2\] -&gt; location\[1\],
 location\[2\] -&gt; location\[2\] …).
 
 This time, the quite close to a 3D array to begin with. We can wrap this
@@ -200,13 +198,13 @@ matrix into a 3D array.
 telco_dir_array <- with(telco_dir_list, 
                         array(data, dim = c(98, 98, 516), 
                           dimnames = list(
-                             origin = locations,
                              dest = locations, 
+                             origin = locations,
                              date = as.character(as.Date(dates)))
                         )
                     )
 
-# All dates from Aalborg to Aarhus
+# All dates from Aarhus to Aalborg
 plot(telco_dir_array["Aalborg", "Århus", ])
 ```
 
@@ -224,14 +222,14 @@ head(telco_dir_df)
 
 <div class="kable-table">
 
-| date       | origin      | dest     |        trips |
-|:-----------|:------------|:---------|-------------:|
-| 2020-02-01 | Aabenraa    | Aabenraa | 3.231621e+05 |
-| 2020-02-01 | Aalborg     | Aabenraa | 1.865877e+02 |
-| 2020-02-01 | Albertslund | Aabenraa | 0.000000e+00 |
-| 2020-02-01 | Allerød     | Aabenraa | 6.717156e+00 |
-| 2020-02-01 | Assens      | Aabenraa | 7.245214e+02 |
-| 2020-02-01 | Ballerup    | Aabenraa | 0.000000e+00 |
+| date       | origin   | dest        |        trips |
+|:-----------|:---------|:------------|-------------:|
+| 2020-02-01 | Aabenraa | Aabenraa    | 3.231621e+05 |
+| 2020-02-01 | Aabenraa | Aalborg     | 4.052684e+02 |
+| 2020-02-01 | Aabenraa | Albertslund | 0.000000e+00 |
+| 2020-02-01 | Aabenraa | Allerød     | 0.000000e+00 |
+| 2020-02-01 | Aabenraa | Assens      | 6.901332e+02 |
+| 2020-02-01 | Aabenraa | Ballerup    | 8.956209e+00 |
 
 </div>
 
@@ -279,20 +277,20 @@ dimensions (origin, destination and date).
 
 ``` r
 with(telco_dir_list, 
-     bind_cols(expand.grid(origin = locations, dest = locations, date = as.Date(dates)), 
+     bind_cols(expand.grid(dest = locations, origin = locations, date = as.Date(dates)), 
                trips = as.vector(data))
 ) %>% head
 ```
 
 <div class="kable-table">
 
-| origin      | dest     | date       |        trips |
+| dest        | origin   | date       |        trips |
 |:------------|:---------|:-----------|-------------:|
 | Aabenraa    | Aabenraa | 2020-02-01 | 3.231621e+05 |
-| Aalborg     | Aabenraa | 2020-02-01 | 1.865877e+02 |
+| Aalborg     | Aabenraa | 2020-02-01 | 4.052684e+02 |
 | Albertslund | Aabenraa | 2020-02-01 | 0.000000e+00 |
-| Allerød     | Aabenraa | 2020-02-01 | 6.717156e+00 |
-| Assens      | Aabenraa | 2020-02-01 | 7.245214e+02 |
-| Ballerup    | Aabenraa | 2020-02-01 | 0.000000e+00 |
+| Allerød     | Aabenraa | 2020-02-01 | 0.000000e+00 |
+| Assens      | Aabenraa | 2020-02-01 | 6.901332e+02 |
+| Ballerup    | Aabenraa | 2020-02-01 | 8.956209e+00 |
 
 </div>
