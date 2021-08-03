@@ -1,0 +1,59 @@
+---
+title: "Stringency Index - Oxford Covid-19 Government Response Tracker (OxCGRT)"
+author: "Johannes Enevoldsen"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.path = "figs/",
+  message = FALSE,
+  warning = FALSE,
+  print
+)
+```
+  
+  > This document is generated from [README.rmd](README.rmd)
+  
+The OxCGRT stringency index is an attempt to quantify the degree to which a given government enforces restrictions on its citizens with the aim of reducing the spread of COVID-19.
+
+From the [official website](https://covidtracker.bsg.ox.ac.uk/):
+  
+  > Governments are taking a wide range of measures to tackle the COVID-19 outbreak. We aim to track and compare worldwide government responses to the coronavirus rigorously and consistently. Systematic information on which measures governments take, and when, can help us understand the responses in a consistent way, aiding efforts to fight the pandemic.
+  
+  
+The [official website](https://covidtracker.bsg.ox.ac.uk/) provide a lot of information about the different types of restrictions that go into the stringency index. Timeseries about the individual restrictions can also be accessed.
+
+Here we will download an plot the timeseries of the stringency index.
+
+```{r}
+library(tidyverse)
+
+stringency_index_url <- "https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/master/data/timeseries/stringency_index.csv"
+
+stringency_index <- read_csv(stringency_index_url)
+
+print(stringency_index, n_extra = 10)
+```
+
+The data is in a wide format, with dates in column headers. First, we should pivot it longer.
+
+```{r}
+stringency_index_long <- pivot_longer(stringency_index, -c(X1, country_code, country_name),
+                                      names_to = "date", 
+                                      values_to = "stringency") %>% 
+  mutate(date = lubridate::dmy(date))
+
+stringency_index_long
+```
+
+Stringency index in Denmark
+
+```{r}
+stringency_index_long %>% 
+  filter(country_name == "Denmark") %>% 
+  ggplot(aes(date, stringency)) + 
+  geom_step() + 
+  scale_x_date()
+```
+

@@ -7,6 +7,9 @@ Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
   
   - [Using mobility data from telecompanies](data/Mobility-telco/)
   
+  - [Stringency index - Oxford Covid-19 Government Response Tracker (OxCGRT)](data/OxCGRT/)
+  *The level of restrictions imposed by different governments at any time during the pandemic*
+  
 ## Other relevant data
 
   - [Official Danish COVID-19 surveillance data](https://covid19.ssi.dk/overvagningsdata/download-fil-med-overvaagningdata)
