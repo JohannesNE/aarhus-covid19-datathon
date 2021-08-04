@@ -59,6 +59,23 @@ uk <- melt(uk, "date", variable.name = "country", value.name = "num_sequences")
 uk[, num_sequences := num_sequences - shift(num_sequences, 2, type = "lag"), by = country] # Transform weekly to biweekly data to harmonise UK data with OWID
 delta <- rbindlist(list(delta, uk), fill = TRUE)
 
+# Restrictions on public gatherings and facial coverings (from Oxford COVID government response tracker)
+restr <- fread("https://github.com/OxCGRT/covid-policy-tracker/blob/master/data/OxCGRT_latest.csv?raw=true")
+setnames(restr, tolower)
+restr[, countryname := tolower(countryname)]
+restr[, regionname := tolower(regionname)]
+restr <- restr[(countryname %in% ro16) | 
+               (countryname == "united kingdom" & regionname %in% ro16) |
+               (countryname == "czech republic")]
+# Transform United Kingdom to England and Wales (restrictions applied to both nations)
+restr[countryname == "united kingdom", countryname := regionname]
+restr[, date := as.Date(paste0(substr(date, 1, 4), "-", substr(date, 5, 6), "-", substr(date, 7, 8)))]
+restr <- restr[between(date, as.Date("2021-05-11"), as.Date("2021-08-11"))]
+restr <- restr[, .(country = countryname, date, 
+                   masks = `h6_facial coverings`, gatherlim = `c4_restrictions on gatherings`)]
+restr[, gatherlim := factor(gatherlim, levels = 0:4, labels = c("no restr", "1000+", "<1000", "<100", "<10"))]
+restr[, masks := factor(masks, levels = 0:4, labels = c("never", "recommended", "risk situations", "public spaces", "always"))]
+
 # Match results for EURO2020 (manually curated)
 matches <- fread("matches.csv")
 

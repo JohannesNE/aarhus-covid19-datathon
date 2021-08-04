@@ -8,6 +8,7 @@ manually curated data. The following datasets will be loaded as data.tables:
 * cases (daily confirmed cases by participating country)  
 * vacc (proportion of population of a given country vaccinated, daily)  
 * delta (number of confirmed delta variant infections and proportion of infections caused by delta in a given country, biweekly)  
+* restr (daily information on policies regarding restrictions on public gatherings and mask usage)
 * matches (results from EURO2020, one observation per match for each country)  
 
 The initial plan is to perform an interrupted time series analysis and/or difference-in-difference,
