@@ -7,7 +7,7 @@ Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
   
   - [Using mobility data from telecompanies](data/Mobility-telco/)
 
-  - [Datasets for analyzing the effect of the European Football Championship 2020 on SARS-CoV-2 incidence in participating countries](data/Euro2020/)
+  - [Datasets for analyzing changes in SARS-CoV-2 incidence during and after the European Football Championship 2020](data/Euro2020/)
   
 ## Other relevant data
 
