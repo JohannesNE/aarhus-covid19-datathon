@@ -6,6 +6,8 @@ Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
   - [Plotting Danish geographical regions](data/DK-geographical-regions/)
   
   - [Using mobility data from telecompanies](data/Mobility-telco/)
+
+  - [Datasets for analyzing changes in SARS-CoV-2 incidence during and after the European Football Championship 2020](data/Euro2020/)
   
   - [Stringency index - Oxford Covid-19 Government Response Tracker (OxCGRT)](data/OxCGRT/)
   *The level of restrictions imposed by different governments at any time during the pandemic*
