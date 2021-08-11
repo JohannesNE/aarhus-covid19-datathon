@@ -1,6 +1,8 @@
 Social Compliance Plots and Analysis
 ================
-Lasse Hyldig Hansen
+### Authored and composed by Lasse Hyldig Hansen:
+
+#### https://www.linkedin.com/in/lasse-hyldig-hansen-a1ab1216a/
 2021-08-11
 
 The current folder is a collection of all scripts, functions and data-files that are needed to replicate the analysis from the following paper: 
