@@ -34,28 +34,6 @@ pacman::p_load(tidyverse,
 ``` r
 d10 = read_csv("data_for_analysis.csv")
 ```
-
-    ## 
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## cols(
-    ##   Cases_lag9 = col_double(),
-    ##   Stringency = col_double(),
-    ##   Bebyggelse = col_double(),
-    ##   Over_30 = col_double(),
-    ##   Transit_Change_lag = col_double(),
-    ##   Residential_Change_lag = col_double(),
-    ##   Kommune = col_character(),
-    ##   Date = col_date(format = ""),
-    ##   Week = col_character(),
-    ##   Under_30 = col_double(),
-    ##   Cases = col_double(),
-    ##   Temp_lag = col_double(),
-    ##   Precip_lag = col_double(),
-    ##   Work_Change_lag = col_double(),
-    ##   Retail_Change_lag = col_double(),
-    ##   Befolkningstæthed = col_double()
-    ## )
-
 The two linear mixed effects model are then run, with cases as the
 Y-variable and the variables of interest as x variables.
 
