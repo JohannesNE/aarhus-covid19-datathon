@@ -351,7 +351,7 @@ figure2 = ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, com
 figure2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![Interaction Plot 1](Interaction Plot 2.jpeg)
 
 ### Making plots of predicted values
 
