@@ -1,0 +1,271 @@
+---
+title: "Social Compliance Plots and Analysis"
+author: "Lasse Hyldig Hansen"
+date: "`r Sys.Date()`"
+output:  rmarkdown::github_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This script shows how the analysis and plots for the paper "Social Compliance During High Stringency Periods Eciently Reduces COVID-19 Incidence: Evidence
+from Google Mobility Reports".
+
+The scripts takes its standing from the preprocessing script. Therefore, I will start by loading the packages needed, and then load the csv file generated in the preprocessing script. 
+
+If you did not run the preprocessing script, you can download the file from the folder.
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=8) 
+```
+
+```{r message=FALSE, warning=FALSE}
+pacman::p_load(tidyverse, 
+               purrr, 
+               tidyr, 
+               stringr, 
+               Boruta, 
+               ggplot2,
+               sandwich,
+               survival,
+               car,
+               ggpubr,
+               pracma,
+               effects,
+               lme4
+               )
+```
+
+```{r warning=FALSE}
+d10 = read_csv("data_for_analysis.csv")
+```
+
+The two linear mixed effects model are then run, with cases as the Y-variable and the variables of interest as x variables.
+
+Random intercepts for municipalities and dates are taken with the following syntax: (1|Date) + (1 | Kommune)
+
+Further a null model is also run (reg2), this is two compare the explanatory power of the variables added in reg1.
+
+```{r}
+reg1 <- lmer(data = d10, Cases ~ (Cases_lag9  +  Residential_Change_lag + Transit_Change_lag + Precip_lag + Temp_lag)*Stringency + Bebyggelse + Under_30 + (1|Date) + (1 | Kommune))
+reg2 <- lm(data = d10, Cases ~ Cases_lag9 * Stringency)
+```
+
+Afterwatds I obtain the Marginal and Conditional Rsquared, with the  MuMIn package. This will calculate the amount of variance explained by the x-variables.
+
+```{r}
+MuMIn::r.squaredGLMM(reg1)
+```
+
+Then I can get the Summary Statistics from the mixed effects models. This will give me coefficient information with p-values accordingly.
+
+```{r}
+summary(reg1)
+summary(reg2)
+```
+
+Further, a Model Comparison is made, with the anova() function, this compares the out of sample error from the full model (reg1) and the null model (reg2)
+
+```{r}
+anova(reg1, reg2)
+```
+
+
+### Understanding interactions with plots
+
+Making Interaction plots is done by first calculating the expected intereaction effects between the x-variables. Afterwards the interacting variable is set to three levels, and is plotted. The plot is made with ggplot2:
+
+```{r}
+Inter.HandPick1 <- effect('Temp_lag:Stringency', reg1, 
+                                              xlevels=list(Temp_lag = c(-1, 0, 1),
+                                              Stringency = c(-1, 0, 1)),
+                                              se=TRUE, confidence.level=.95, typical=mean)
+
+Inter.HandPick1 = data.frame(Inter.HandPick1)
+
+Inter.HandPick1$Stringency = ifelse(Inter.HandPick1$Stringency == -1, "Low Stringency", 
+                            ifelse(Inter.HandPick1$Stringency == 0, "Mean Stringency", "High Stringency"))
+
+Inter.HandPick1$Temp_lag = ifelse(Inter.HandPick1$Temp_lag == -1, "Low Temperature", 
+                            ifelse(Inter.HandPick1$Temp_lag == 0, "Mean Temperature", "High Temperature"))
+
+Inter.HandPick1$Temp_lag <- factor(Inter.HandPick1$Temp_lag, levels = c("Low Temperature", "Mean Temperature", "High Temperature"))
+Inter.HandPick1$Stringency <- factor(Inter.HandPick1$Stringency, levels = c("Low Stringency", "Mean Stringency", "High Stringency"))
+geom.text.size = 8
+theme.size = (14/5) * geom.text.size
+
+p1<- ggplot(Inter.HandPick1, aes(x=Temp_lag, y=fit, group=Stringency, color=Stringency)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
+                 ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
+  labs("Interaction effect of Stringency and Temperature", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size)) + theme_light()
+
+p1
+```
+
+```{r Plot Cases interaction}
+Inter.HandPick2 <- effect('Cases_lag9:Stringency', reg1, 
+                                              xlevels=list(Cases_lag9 = c(-1, 0, 1),
+                                              Stringency = c(-1, 0, 1)),
+                                              se=TRUE, confidence.level=.95, typical=mean)
+Inter.HandPick2 = data.frame(Inter.HandPick2)
+
+Inter.HandPick2$Stringency = ifelse(Inter.HandPick2$Stringency == -1, "Low Stringency", 
+                            ifelse(Inter.HandPick2$Stringency == 0, "Mean Stringency", "High Stringency"))
+
+Inter.HandPick2$Cases_lag9 = ifelse(Inter.HandPick2$Cases_lag9 == -1, "Low Incidence", 
+                            ifelse(Inter.HandPick2$Cases_lag9 == 0, "Mean Incidence", "High Incidence"))
+
+Inter.HandPick2$Cases_lag9 <- factor(Inter.HandPick2$Cases_lag9, levels = c("Low Incidence", "Mean Incidence", "High Incidence"))
+Inter.HandPick2$Stringency <- factor(Inter.HandPick2$Stringency, levels = c("Low Stringency", "Mean Stringency", "High Stringency"))
+
+
+p2<- ggplot(Inter.HandPick2, aes(x=Cases_lag9, y=fit, group=Stringency, color=Stringency)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
+                 ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
+  labs("Interaction effect of Stringency and autoregresive Cases", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+
+p2
+```
+
+
+```{r}
+Inter.HandPick3 <- effect('Precip_lag:Stringency', reg1, 
+                                              xlevels=list(Precip_lag = c(-1, 0, 1),
+                                              Stringency = c(-1, 0, 1)),
+                                              se=TRUE, confidence.level=.95, typical=mean)
+Inter.HandPick3 = data.frame(Inter.HandPick3)
+
+Inter.HandPick3$Stringency = ifelse(Inter.HandPick3$Stringency == -1, "Low Stringency", 
+                            ifelse(Inter.HandPick3$Stringency == 0, "Mean Stringency", "High Stringency"))
+
+Inter.HandPick3$Precip_lag = ifelse(Inter.HandPick3$Precip_lag == -1, "Low Precipitation", 
+                            ifelse(Inter.HandPick3$Precip_lag == 0, "Mean Precipitation", "High Precipitation"))
+
+Inter.HandPick3$Precip_lag <- factor(Inter.HandPick3$Precip_lag, levels = c("Low Precipitation", "Mean Precipitation", "High Precipitation"))
+Inter.HandPick3$Stringency <- factor(Inter.HandPick3$Stringency, levels = c("Low Stringency", "Mean Stringency", "High Stringency"))
+
+
+p3<- ggplot(Inter.HandPick3, aes(x=Precip_lag, y=fit, group=Stringency, color=Stringency)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
+                 ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
+  labs("Interaction effect of Stringency and Precipitation", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+
+p3
+```
+
+```{r}
+
+Inter.HandPick4 <- effect('Residential_Change_lag:Stringency', reg1, 
+                                              xlevels=list(Residential_Change_lag = c(-1, 0, 1),
+                                              Stringency = c(-1, 0, 1)),
+                                              se=TRUE, confidence.level=.95, typical=mean)
+Inter.HandPick4 = data.frame(Inter.HandPick4)
+
+Inter.HandPick4$Stringency = ifelse(Inter.HandPick4$Stringency == -1, "Low Stringency", 
+                            ifelse(Inter.HandPick4$Stringency == 0, "Mean Stringency", "High Stringency"))
+
+Inter.HandPick4$Residential_Change_lag = ifelse(Inter.HandPick4$Residential_Change_lag == -1, "Low Residential Mobility", 
+                            ifelse(Inter.HandPick4$Residential_Change_lag == 0, "Mean Residential Mobility", "High Residential Mobility"))
+
+Inter.HandPick4$Residential_Change_lag <- factor(Inter.HandPick4$Residential_Change_lag, levels = c("Low Residential Mobility", "Mean Residential Mobility", "High Residential Mobility"))
+Inter.HandPick4$Stringency <- factor(Inter.HandPick4$Stringency, levels = c("Low Stringency", "Mean Stringency", "High Stringency"))
+
+
+p4<- ggplot(Inter.HandPick4, aes(x=Residential_Change_lag, y=fit, group=Stringency, color=Stringency)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
+                 ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
+  labs("Interaction effect of Stringency and Residential Mobility Change", x="", y = "Conditional Cases per 100,000 capita")+ theme(axis.text = element_text(size = theme.size))+theme_light()
+
+p4
+```
+
+```{r}
+Inter.HandPick5 <- effect('Transit_Change_lag:Stringency', reg1, 
+                                              xlevels=list(Transit_Change_lag = c(-1, 0, 1),
+                                              Stringency = c(-1, 0, 1)),
+                                              se=TRUE, confidence.level=.95, typical=mean)
+Inter.HandPick5 = data.frame(Inter.HandPick5)
+
+Inter.HandPick5$Stringency = ifelse(Inter.HandPick5$Stringency == -1, "Low Stringency", 
+                            ifelse(Inter.HandPick5$Stringency == 0, "Mean Stringency", "High Stringency"))
+
+Inter.HandPick5$Transit_Change_lag = ifelse(Inter.HandPick5$Transit_Change_lag == -1, "Low Transit Mobility", 
+                            ifelse(Inter.HandPick5$Transit_Change_lag == 0, "Mean Transit Mobility", "High Transit Mobility"))
+
+Inter.HandPick5$Transit_Change_lag <- factor(Inter.HandPick5$Transit_Change_lag, levels = c("Low Transit Mobility", "Mean Transit Mobility", "High Transit Mobility"))
+Inter.HandPick5$Stringency <- factor(Inter.HandPick5$Stringency, levels = c("Low Stringency", "Mean Stringency", "High Stringency"))
+
+
+p5<- ggplot(Inter.HandPick5, aes(x=Transit_Change_lag, y=fit, group=Stringency, color=Stringency)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
+                 ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
+  labs("Interaction effect of Stringency and Transit Mobility Change", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+
+p5
+```
+
+### Two figures from Paper 
+
+The two figures from the paper can be made with ggarrange in this way:
+
+```{r}
+figure1 = ggarrange(p1, p4,labels = c("a","b"), ncol = 2, nrow = 1, common.legend = T) + theme(axis.text = element_text(size = theme.size))+ theme_light()
+figure1
+```
+
+
+```{r}
+figure2 = ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, common.legend = T) + theme(axis.text = element_text(size = theme.size))+ theme_light()
+figure2
+```
+
+
+### Making plots of predicted values
+
+Getting predicted values from the two models are done by using the function fitted():
+
+```{r}
+d10$Full_Model <- fitted(reg1, d10)
+d10$Null_Model <- fitted(reg2, d10)
+```
+
+Afterwards I make a dataframe for visualizing the effect of some random municipalities in the paper:
+
+```{r}
+d11 = d10 %>% filter(.$Kommune %in% c("Sønderborg", "Varde", "Brøndby", "København"))
+```
+
+Then I can plot the fitted values from both models compared to actual cases for the four aforementioned municipalities:
+
+```{r, warning=FALSE}
+fitted_plot = ggplot(data = d11, aes(Date, )) +
+  geom_smooth(aes(y = Cases, colour = "Cases")) +
+  geom_smooth(aes(y = Full_Model, colour = "Full_Model")) +
+  geom_smooth(aes(y = Null_Model, colour = "Null_Model")) +
+  facet_wrap(~ Kommune) +
+  theme(axis.text = element_text(size = theme.size))+ theme_light() + ylim(0,50) + ylab("Cases Per 100.000 Capita")
+fitted_plot
+```
+
+Lastly I plot fitted values from both models compared to actual cases for all municipalities:
+
+```{r warning=FALSE}
+fitted_plot_all = ggplot(data = d10, aes(Date, )) +
+  geom_smooth(aes(y = Cases, colour = "Cases",level = 0.95)) +
+  geom_smooth(aes(y = Full_Model, colour = "Full_Model", level = 0.95)) +
+  geom_smooth(aes(y = Null_Model, colour = "Null_Model", level = 0.95)) +
+  facet_wrap(~ Kommune) +
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
+fitted_plot_all
+```
