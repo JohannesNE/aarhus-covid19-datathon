@@ -45,6 +45,8 @@ Then I read the data from the pre processing script avaliable in the folder:
 d10 = read_csv("data_for_analysis.csv")
 ```
 
+### Running mixed-effects model
+
 The two linear mixed effects model are then run, with cases as the
 Y-variable and the variables of interest as x variables.
 
@@ -62,8 +64,9 @@ reg2 <- lm(data = d10, Cases ~ Cases_lag9 * Stringency)
 
 Afterwatds I obtain the Marginal and Conditional Rsquared, with the
 MuMIn package. This will calculate the amount of variance explained by
-the
-    x-variables.
+the x-variables.
+
+### Summary statistics and proportional variance explained
 
 ``` r
 MuMIn::r.squaredGLMM(reg1)
@@ -147,6 +150,8 @@ summary(reg2)
     ## Multiple R-squared:  0.5724, Adjusted R-squared:  0.5723 
     ## F-statistic:  7756 on 3 and 17380 DF,  p-value: < 2.2e-16
 
+### Model comparison
+
 Further, a Model Comparison is made, with the anova() function, this
 compares the out of sample error from the full model (reg1) and the null
 model (reg2)
@@ -168,6 +173,8 @@ anova(reg1, reg2)
     ## reg1   17 104151 104282 -52058   104117 24351 12  < 2.2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    
+## Making figures
 
 ### Understanding interactions with plots
 
@@ -328,7 +335,7 @@ p5
 
 ![](Figures/InteractionPlot5.png)<!-- -->
 
-### Two figures from Paper
+### Creating the two first figures from the paper
 
 The two figures from the paper can be made with ggarrange in this
 way:
