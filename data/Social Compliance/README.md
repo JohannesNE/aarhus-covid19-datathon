@@ -216,7 +216,7 @@ p1<- ggplot(Inter.HandPick1, aes(x=Temp_lag, y=fit, group=Stringency, color=Stri
 p1
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Figures/InteractionPlot1.png)<!-- -->
 
 ``` r
 Inter.HandPick2 <- effect('Cases_lag9:Stringency', reg1, 
@@ -245,7 +245,7 @@ p2<- ggplot(Inter.HandPick2, aes(x=Cases_lag9, y=fit, group=Stringency, color=St
 p2
 ```
 
-![](README_files/figure-gfm/Plot%20Cases%20interaction-1.png)<!-- -->
+![](Figures/InteractionPlot2.png)<!-- -->
 
 ``` r
 Inter.HandPick3 <- effect('Precip_lag:Stringency', reg1, 
@@ -274,7 +274,7 @@ p3<- ggplot(Inter.HandPick3, aes(x=Precip_lag, y=fit, group=Stringency, color=St
 p3
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Figures/InteractionPlot3.png)<!-- -->
 
 ``` r
 Inter.HandPick4 <- effect('Residential_Change_lag:Stringency', reg1, 
@@ -303,7 +303,7 @@ p4<- ggplot(Inter.HandPick4, aes(x=Residential_Change_lag, y=fit, group=Stringen
 p4
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Figures/InteractionPlot4.png)<!-- -->
 
 ``` r
 Inter.HandPick5 <- effect('Transit_Change_lag:Stringency', reg1, 
@@ -332,7 +332,7 @@ p5<- ggplot(Inter.HandPick5, aes(x=Transit_Change_lag, y=fit, group=Stringency, 
 p5
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Figures/InteractionPlot5.png)<!-- -->
 
 ### Two figures from Paper
 
@@ -344,14 +344,14 @@ figure1 = ggarrange(p1, p4,labels = c("a","b"), ncol = 2, nrow = 1, common.legen
 figure1
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Figures/Figure1.png)<!-- -->
 
 ``` r
 figure2 = ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, common.legend = T) + theme(axis.text = element_text(size = theme.size))+ theme_light()
 figure2
 ```
 
-![](Figures/InteractionPlot1.png)<!-- -->
+![](Figures/Figure2.png)<!-- -->
 
 ![Optional Text](../Social Compliance/Figures/Interaction Plot 2.png)
 
@@ -390,7 +390,7 @@ fitted_plot
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Figures/Figure3.png)<!-- -->
 
 Lastly I plot fitted values from both models compared to actual cases
 for all municipalities:
@@ -409,4 +409,4 @@ fitted_plot_all
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Figures/Figure4.png)<!-- -->
