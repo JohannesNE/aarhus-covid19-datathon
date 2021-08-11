@@ -351,7 +351,7 @@ figure2 = ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, com
 figure2
 ```
 
-![](Figures/Interaction Plot 2.jpeg)<!-- -->
+![](Figures/InteractionPlot1.png)<!-- -->
 
 ![Optional Text](../Social Compliance/Figures/Interaction Plot 2.png)
 
