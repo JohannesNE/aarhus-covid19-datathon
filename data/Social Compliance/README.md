@@ -3,16 +3,24 @@ Social Compliance Plots and Analysis
 Lasse Hyldig Hansen
 2021-08-11
 
+The current folder is a collection of all scripts, functions and data-files that are needed to replicate the analysis from the following paper: 
+
+https://www.researchsquare.com/article/rs-501561/v1
+
+### This Script
+
 This script shows how the analysis and plots for the paper “Social
 Compliance During High Stringency Periods Eciently Reduces COVID-19
 Incidence: Evidence from Google Mobility Reports”.
 
-The scripts takes its standing from the preprocessing script. Therefore,
-I will start by loading the packages needed, and then load the csv file
+The following code takes its standing from the preprocessing script. 
+
+Therefore, I will start by loading the packages needed, and then load the csv file
 generated in the preprocessing script.
 
-If you did not run the preprocessing script, you can download the file
-from the folder.
+If you did not run the preprocessing script, you can download the file from the folder "Materials".
+
+First I load the packages needed:
 
 ``` r
 pacman::p_load(tidyverse, 
@@ -31,9 +39,12 @@ pacman::p_load(tidyverse,
                )
 ```
 
+Then I read the data from the pre processing script avaliable in the folder:
+
 ``` r
 d10 = read_csv("data_for_analysis.csv")
 ```
+
 The two linear mixed effects model are then run, with cases as the
 Y-variable and the variables of interest as x variables.
 
