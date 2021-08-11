@@ -353,7 +353,7 @@ figure2
 
 ![Interaction Plot 1](Interaction Plot 2.jpeg)
 
-![Optional Text](../master/Figures/Interaction Plot 2.png)
+![Optional Text](../Social Compliance/Figures/Interaction Plot 2.png)
 
 ### Making plots of predicted values
 
