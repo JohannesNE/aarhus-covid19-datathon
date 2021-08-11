@@ -189,7 +189,8 @@ p1<- ggplot(Inter.HandPick1, aes(x=Temp_lag, y=fit, group=Stringency, color=Stri
   geom_point()+
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
                  ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
-  labs("Interaction effect of Stringency and Temperature", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size)) + theme_light()
+  labs("Interaction effect of Stringency and Temperature", x="", y = "Conditional Cases per 100,000 capita") + 
+  theme(axis.text = element_text(size = theme.size)) + theme_light()
 
 p1
 ```
@@ -218,7 +219,8 @@ p2<- ggplot(Inter.HandPick2, aes(x=Cases_lag9, y=fit, group=Stringency, color=St
   geom_point()+
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
                  ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
-  labs("Interaction effect of Stringency and autoregresive Cases", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+  labs("Interaction effect of Stringency and autoregresive Cases", x="", y = "Conditional Cases per 100,000 capita") + 
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
 
 p2
 ```
@@ -247,7 +249,8 @@ p3<- ggplot(Inter.HandPick3, aes(x=Precip_lag, y=fit, group=Stringency, color=St
   geom_point()+
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
                  ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
-  labs("Interaction effect of Stringency and Precipitation", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+  labs("Interaction effect of Stringency and Precipitation", x="", y = "Conditional Cases per 100,000 capita") + 
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
 
 p3
 ```
@@ -276,7 +279,8 @@ p4<- ggplot(Inter.HandPick4, aes(x=Residential_Change_lag, y=fit, group=Stringen
   geom_point()+
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
                  ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
-  labs("Interaction effect of Stringency and Residential Mobility Change", x="", y = "Conditional Cases per 100,000 capita")+ theme(axis.text = element_text(size = theme.size))+theme_light()
+  labs("Interaction effect of Stringency and Residential Mobility Change", x="", y = "Conditional Cases per 100,000 capita")+ 
+  theme(axis.text = element_text(size = theme.size))+theme_light()
 
 p4
 ```
@@ -305,7 +309,8 @@ p5<- ggplot(Inter.HandPick5, aes(x=Transit_Change_lag, y=fit, group=Stringency, 
   geom_point()+
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=.1,
                  ) + scale_color_manual(values=c('#ffd882','#c4c4c4', '#15607a')) +
-  labs("Interaction effect of Stringency and Transit Mobility Change", x="", y = "Conditional Cases per 100,000 capita") + theme(axis.text = element_text(size = theme.size))+ theme_light()
+  labs("Interaction effect of Stringency and Transit Mobility Change", x="", y = "Conditional Cases per 100,000 capita") + 
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
 
 p5
 ```
@@ -318,15 +323,17 @@ The two figures from the paper can be made with ggarrange in this
 way:
 
 ``` r
-figure1 = ggarrange(p1, p4,labels = c("a","b"), ncol = 2, nrow = 1, common.legend = T) + theme(axis.text = element_text(size = theme.size))+ theme_light()
-figure1
+ggarrange(p1, p4,labels = c("a","b"), ncol = 2, nrow = 1, common.legend = T) + 
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
+
 ```
 
 ![](Figures/Figure1.png)<!-- -->
 
 ``` r
-figure2 = ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, common.legend = T) + theme(axis.text = element_text(size = theme.size))+ theme_light()
-figure2
+ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, common.legend = T) + 
+  theme(axis.text = element_text(size = theme.size))+ theme_light()
+
 ```
 
 ![](Figures/Figure2.png)<!-- -->
@@ -344,8 +351,7 @@ d10$Null_Model <- fitted(reg2, d10)
 ```
 
 Afterwards I make a dataframe for visualizing the effect of some random
-municipalities in the
-paper:
+municipalities in the paper:
 
 ``` r
 d11 = d10 %>% filter(.$Kommune %in% c("Sønderborg", "Varde", "Brøndby", "København"))
@@ -355,18 +361,16 @@ Then I can plot the fitted values from both models compared to actual
 cases for the four aforementioned municipalities:
 
 ``` r
-fitted_plot = ggplot(data = d11, aes(Date, )) +
+ggplot(data = d11, aes(Date, )) +
   geom_smooth(aes(y = Cases, colour = "Cases")) +
   geom_smooth(aes(y = Full_Model, colour = "Full_Model")) +
   geom_smooth(aes(y = Null_Model, colour = "Null_Model")) +
   facet_wrap(~ Kommune) +
-  theme(axis.text = element_text(size = theme.size))+ theme_light() + ylim(0,50) + ylab("Cases Per 100.000 Capita")
-fitted_plot
+  theme(axis.text = element_text(size = theme.size))+ 
+   theme_light() + 
+   ylim(0,50) + 
+   ylab("Cases Per 100.000 Capita")
 ```
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
 ![](Figures/Figure3.png)<!-- -->
 
@@ -374,17 +378,12 @@ Lastly I plot fitted values from both models compared to actual cases
 for all municipalities:
 
 ``` r
-fitted_plot_all = ggplot(data = d10, aes(Date, )) +
+ggplot(data = d10, aes(Date, )) +
   geom_smooth(aes(y = Cases, colour = "Cases",level = 0.95)) +
   geom_smooth(aes(y = Full_Model, colour = "Full_Model", level = 0.95)) +
   geom_smooth(aes(y = Null_Model, colour = "Null_Model", level = 0.95)) +
   facet_wrap(~ Kommune) +
   theme(axis.text = element_text(size = theme.size))+ theme_light()
-fitted_plot_all
 ```
-
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
 ![](Figures/Figure4.png)<!-- -->
