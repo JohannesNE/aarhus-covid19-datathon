@@ -13,7 +13,7 @@ https://www.researchsquare.com/article/rs-501561/v1
 
 This script shows how the analysis and plots for the paper “Social
 Compliance During High Stringency Periods Eciently Reduces COVID-19
-Incidence: Evidence from Google Mobility Reports”.
+Incidence: Evidence from Google Mobility Reports” were conducted.
 
 The following code takes its standing from the preprocessing script. 
 
@@ -50,14 +50,14 @@ d10 = read_csv("data_for_analysis.csv")
 ### Running mixed-effects model
 
 The two linear mixed effects model are then run, with cases as the
-Y-variable and the variables of interest as x variables.
+y-variable and the variables of interest as x-variables. For additional information
+regarding the model, look under methods in: https://www.researchsquare.com/article/rs-501561/v1
 
 Random intercepts for municipalities and dates are taken with the
 following syntax: (1|Date) + (1 | Kommune)
 
 Further a null model is also run (reg2), this is two compare the
-explanatory power of the variables added in
-reg1.
+explanatory power of the variables added in reg1.
 
 ``` r
 reg1 <- lmer(data = d10, Cases ~ (Cases_lag9  +  Residential_Change_lag + Transit_Change_lag + Precip_lag + Temp_lag)*Stringency + Bebyggelse + Under_30 + (1|Date) + (1 | Kommune))
@@ -66,7 +66,9 @@ reg2 <- lm(data = d10, Cases ~ Cases_lag9 * Stringency)
 
 Afterwatds I obtain the Marginal and Conditional Rsquared, with the
 MuMIn package. This will calculate the amount of variance explained by
-the x-variables.
+the x-variables. 
+
+Further, the summary statistics from both models are obtained with the summary() function.
 
 ### Summary statistics and proportional variance explained
 
@@ -156,7 +158,7 @@ summary(reg2)
 
 Further, a Model Comparison is made, with the anova() function, this
 compares the out of sample error from the full model (reg1) and the null
-model (reg2)
+model (reg2):
 
 ``` r
 anova(reg1, reg2)
@@ -181,9 +183,20 @@ anova(reg1, reg2)
 ### Understanding interactions with plots
 
 Making Interaction plots is done by first calculating the expected
-intereaction effects between the x-variables. Afterwards the interacting
-variable is set to three levels, and is plotted. The plot is made with
-ggplot2:
+intereaction effects between the x-variables in focus on the y variable. 
+Afterwards the interacting variable is set to three levels, and is plotted.
+
+If you are not familiar with interaction effects in linear models, 
+I recommend checking out this resource:
+https://www.jmp.com/en_ch/statistics-knowledge-portal/what-is-multiple-regression/mlr-with-interactions.html
+
+Interactions can be hard to understand without visualizing them. Therefore it is of great importance to plot them, 
+and obtain a visual understanding of the implications they have for the model explanations.
+
+The plots are made with ggplot2. As there are five interactions tested in the paper, I will
+go through the code to understand create them individually one by one.
+
+First, the Interaction between lagged temperature and stringency on COVID-19 incidence is plotted:
 
 ``` r
 Inter.HandPick1 <- effect('Temp_lag:Stringency', reg1, 
@@ -362,7 +375,10 @@ ggarrange(p2,p3, p5, labels = c("a","b", "c"), ncol = 2, nrow = 2, common.legend
 
 ### Making plots of predicted values
 
-Getting predicted values from the two models are done by using the
+To further understand the implications of the models that are implemented in the paper,
+I have visualized the potential outcome of the model.
+
+Therefore, I start by getting predicted values from the two models are done by using the
 function fitted():
 
 ``` r
