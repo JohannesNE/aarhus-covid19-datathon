@@ -3,7 +3,7 @@ Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
 
 ## Code examples and documentation
 
-  - [Calculate reproductive number (R) from SSI data](data/calculate-R-from-ssi-data)
+  - [Using data from SSI to calculate the reproduction number (R)](data/calculate-R-from-ssi-data)
 
   - [Plotting Danish geographical regions](data/DK-geographical-regions/)
   
