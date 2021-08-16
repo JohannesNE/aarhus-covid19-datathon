@@ -6,7 +6,9 @@ output: rmarkdown::github_document
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(
-    fig.path = "figs/"
+    fig.path = "figs/",
+    message = FALSE,
+    warning = FALSE
 )
 ```
 

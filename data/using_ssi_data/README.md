@@ -77,11 +77,7 @@ data <- read_csv2(unz(temp, "Test_pos_over_time.csv"),
                   col_types = list(
                     Date = col_date(format = "")
                   )) 
-```
 
-    ## ℹ Using "','" as decimal and "'.'" as grouping mark. Use `read_delim()` for more control.
-
-``` r
 ### Apply the filter used in SSI where we discard data from
 ### before April 1 2020 and data from the 3 most recent days to
 ### avoid issues with incomplete data. First we remove the 2 summary rows at
@@ -156,7 +152,5 @@ rt_plot <-
 
 rt_plot
 ```
-
-    ## Warning: Removed 1 row(s) containing missing values (geom_path).
 
 ![](figs/unnamed-chunk-5-1.png)<!-- -->
