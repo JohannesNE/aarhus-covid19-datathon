@@ -23,11 +23,11 @@ head(attitudes)
     ## # A tibble: 6 × 50
     ##   date       category  attitude_labels  Q1_1  Q1_2  Q2_1  Q2_2  Q2_3  Q2_4  Q2_5
     ##   <date>        <dbl>        <dbl+lbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 2020-05-12        1 1 [Not at all/C…     9     1     0     1     1     1     6
-    ## 2 2020-05-12        2 2                   16     6     1     2     2     1     6
-    ## 3 2020-05-12        3 3                   18     7     4     0     3     3     7
-    ## 4 2020-05-12        4 4                    8    18     9     5     8     4    25
-    ## 5 2020-05-12        5 5                    9    19     5     6    12     4    15
+    ## 1 2020-05-12        1 1 [Not at all/C…     9    NA    NA    NA    NA    NA     6
+    ## 2 2020-05-12        2 2                   16     6    NA    NA    NA    NA     6
+    ## 3 2020-05-12        3 3                   18     7    NA    NA    NA    NA     7
+    ## 4 2020-05-12        4 4                    8    18     9     5     8    NA    25
+    ## 5 2020-05-12        5 5                    9    19     5     6    12    NA    15
     ## 6 2020-05-12        6 6                    9     6    25    16    20    22    11
     ## # … with 40 more variables: Q2_6 <dbl>, Q3_1 <dbl>, Q3_2 <dbl>, Q3_3 <dbl>,
     ## #   Q3_4 <dbl>, Q3_5 <dbl>, Q3_6 <dbl>, Q3_7 <dbl>, Q5_1 <dbl>, Q5_2 <dbl>,
