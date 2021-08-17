@@ -41,7 +41,7 @@ dl_url <- str_match(html, match_url)[,1]
 dl_url
 ```
 
-    ## [1] "<a href=\"https://files.ssi.dk/covid19/overvagning/data/overvaagningsdata-covid19-13082021-khg7\""
+    ## [1] "<a href=\"https://files.ssi.dk/covid19/overvagning/data/overvaagningsdata-covid19-16082021-cmed\""
 
 ``` r
 ### Get rid of the html code around the link itself.
@@ -49,7 +49,7 @@ dl_url <- substring(dl_url, 10, nchar(dl_url) - 1)
 dl_url
 ```
 
-    ## [1] "https://files.ssi.dk/covid19/overvagning/data/overvaagningsdata-covid19-13082021-khg7"
+    ## [1] "https://files.ssi.dk/covid19/overvagning/data/overvaagningsdata-covid19-16082021-cmed"
 
 ``` r
 ### Extract the date from the most recent zip file available.
@@ -57,7 +57,7 @@ dl_date <- str_match(dl_url, "[[:digit:]]{8}") %>% as.Date("%d%m%Y")
 dl_date
 ```
 
-    ## [1] "2021-08-13"
+    ## [1] "2021-08-16"
 
 ``` r
 ### Download the zip file. Note that mode = wb is necessary for R in Windows,
@@ -105,13 +105,13 @@ df_r <- df %>% select(Date, R, R.UCI, R.LCI)
 tail(df_r)
 ```
 
-    ##           Date        R    R.UCI     R.LCI
-    ## 492 2021-07-29 1.093324 1.279506 0.9071425
-    ## 493 2021-07-30 1.100422 1.291887 0.9089576
-    ## 494 2021-07-31 1.113072 1.311347 0.9147956
-    ## 495 2021-08-01 1.130184 1.337177 0.9231909
-    ## 496 2021-08-02 1.137836 1.355886 0.9197854
-    ## 497 2021-08-03 1.137560 1.369496 0.9056239
+    ##           Date         R    R.UCI     R.LCI
+    ## 495 2021-08-01 1.0473756 1.232952 0.8617996
+    ## 496 2021-08-02 1.0423179 1.233166 0.8514699
+    ## 497 2021-08-03 1.0274089 1.225054 0.8297643
+    ## 498 2021-08-04 1.0110188 1.217361 0.8046772
+    ## 499 2021-08-05 1.0022807 1.219656 0.7849052
+    ## 500 2021-08-06 0.9997237 1.230954 0.7684936
 
 The weekly plot with its lower and upper confidence interval is also
 based on this time series.
