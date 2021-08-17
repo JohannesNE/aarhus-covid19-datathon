@@ -9,6 +9,8 @@ towers in Denmark is available from <https://covid19.compute.dtu.dk/>.
 The data is collected and aggregated from different network providers as
 described
 [here](https://covid19.compute.dtu.dk/data-description/telco_data/).
+**The dataset is no longer updated by the network providers. The last
+date is June 30th, 2021.**
 
 A data file containing the number of movements between each combination
 of municipalities each day can be downloaded from the website:
