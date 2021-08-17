@@ -1,0 +1,83 @@
+---
+title: "HOPE questionaire"
+author: "Johannes Enevoldsen"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    fig.path = "figs/",
+    message = FALSE,
+    warning = FALSE
+)
+
+```
+
+> This document is generated from [README.rmd](README.rmd)
+
+Answers from the daily questionnaires from the [HOPE project](https://hope-project.dk/#/) will be available during the datathon.
+The data is aggregated to daily counts for each answers for each question. The data is provided as a .dta (STATA) file and can be read using the [{haven}](https://haven.tidyverse.org/) package.
+
+```{r}
+library(tidyverse)
+library(haven)
+```
+
+```{r}
+attitudes <- read_dta("distributions_attitudes.dta")
+head(attitudes)
+```
+
+## The structure
+
+ - Date is the date of the answers.
+ - Columns ending with `_labels` are labelled categorical values (similar to factors) corresponding to each possible answer to a question.
+ - Remaining columns (e.g. Q1_1) counts the number of participants who have given a specific answer (corresponding the to `_labels` column left of it) on a given date.
+ 
+ 
+## Label columns
+
+The labelled columns can be converted to a factor with `labelled::to_factor`
+
+```{r}
+attitudes$attitude_labels %>% head(10)
+```
+
+```{r}
+labelled::to_factor(attitudes$attitude_labels) %>% head(10)
+```
+
+Here, we make a second version of all `_labels` columns, converted to a factor:
+
+```{r}
+attitudes <- attitudes %>% 
+    mutate(across(ends_with("_labels"), labelled::to_factor, levels = "labels", decreasing = TRUE, .names = "{.col}_2"))
+
+attitudes$mask_labels_2 %>% head(10)
+```
+
+*In the first few months, there was no questions regarding mask usage*
+
+## Calculate proportions 
+
+The number of people who answer each day differs, we will therefore calculate the daily proportion of each answer:
+
+```{r}
+attitudes_prop <- attitudes %>% 
+    group_by(date) %>% 
+    mutate(across(c(starts_with("Q"), "mask", "contact_w_infected", "test", "selfisolation", "selfisolation1", "vaccination"), 
+                  .fns = ~.x / sum(.x), # Since the data frame has been grouped by day, the sum will be calculated for each day.
+                  ))
+
+```
+
+We can illustrate the daily distribution in answers using a stacked bar plot of the proportions.
+
+```{r fig.height=4, fig.width=10}
+ggplot(attitudes_prop, aes(date, Q1_1 * 100, fill = fct_relevel(attitude_labels_2, "Don't know", after = Inf))) +
+    geom_col(position = "stack", width = 1) +
+    labs(title = "Q1.1 - I hvilken grad føler du, at du er udsat i forhold til coronavirussen?",
+         fill = "Answer",
+         y = "Proportion [%]")
+```
+
