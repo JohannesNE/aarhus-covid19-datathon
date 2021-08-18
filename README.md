@@ -4,6 +4,9 @@ Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
 ## Code examples and documentation
 
   - [Using data from SSI to calculate the reproduction number (R)](data/calculate-R-from-ssi-data)
+  
+  - [Modelling Epidemics with Time Series Data and {Epidemia}](data/timeseries_modelling_with_epidemia)
+  This notebook is the basis for the Saturday morning workshop: *How to model time series data from an epidemic*
 
   - [Plotting Danish geographical regions](data/DK-geographical-regions/)
   
