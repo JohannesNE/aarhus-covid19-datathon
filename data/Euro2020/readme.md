@@ -21,7 +21,7 @@ of the delta variant during the relevant time period.
 Alternative analysis plans are more than welcome and may also replace the above mentioned.
 
 ## Simple example
-[Investigating the effect of the beginning of the European football championship on the number of confirmed daily SARS-CoV-2 cases in Denmark](https://github.com/lclun/aarhus-covid19-datathon/edit/main/data/Euro2020/example.md)
+[Investigating the effect of the beginning of the European football championship on the number of confirmed daily SARS-CoV-2 cases in Denmark](https://github.com/lclun/aarhus-covid19-datathon/blob/main/data/Euro2020/example.md)
 
 ## Relevant literature
 [Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions: a tutorial. Int J Epidemiol. 2017 Feb;46(1):348–55.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5407170/)  
