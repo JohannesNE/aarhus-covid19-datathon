@@ -1,5 +1,6 @@
-# aarhus-covid19-datathon
-Data and code for Aarhus COVID-19 datathon https://events.au.dk/coviddata
+# Aarhus COVID-19 datathon
+
+Here, you will find some introductions to the main datasets we expect to be utilized during the Aarhus COVID-19 datathon (<https://events.au.dk/coviddata>).
 
 ## Code examples and documentation
 
