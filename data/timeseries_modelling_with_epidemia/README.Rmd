@@ -6,7 +6,7 @@ output: rmarkdown::github_document
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(
-  out.width = 6, fig.height = 6, out.width = "70%", fig.align = "center",
+  out.width = 6, fig.height = 6, out.width = "80%", fig.align = "center",
   fig.path = "figs/",
   message = FALSE,
   warning = FALSE,
@@ -109,7 +109,7 @@ The model setup requires the user to define three components:
 
 We fit the model to daily death counts, though *epidemia* can also deal with multiple observations including case counts and number of hospitalizations, as well as representative PCR and serological studies (see this [example](https://imperialcollegelondon.github.io/epidemia/articles/multiple-obs.html) for more information).
 
-```{r deaths-model}
+```{r}
 deaths <- epiobs(formula = deaths ~ 1, i2o = inf2death, 
                  prior_intercept = normal(0,0.2), link = scaled_logit(0.02))
 ```
@@ -121,7 +121,7 @@ reflects our assumption that IFR is close to 1%. The infection-to-observation di
 
 Our observations inform the latent number of new infections. In this example, we link both quantities using the renewal equation as discussed in the model [description](https://imperialcollegelondon.github.io/epidemia/articles/model-description.html). We extent the deterministic renewal equation and add variance to the process by calling `latent = TRUE `. This is particularly useful for low number of observations, where stochasticity plays a significant role.
 
-```{r inf-model}
+```{r}
 inf <-  epiinf(gen = serial_interval,
                 # latent = TRUE,
                 # prior_aux = normal(10,2), 
@@ -161,28 +161,24 @@ args <- list(rt = rt, inf = inf, obs = deaths, data = data,
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
-             control = list(max_treedepth = 5))
+             iter = 1e3,
+             control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_rw <- do.call(epim, args)
 ```
 
 First, we check the model fit to confirm that the inferred parameters adequately explain the observed deaths. To this end, we use the function `plot_obs(fm, type = "deaths", levels = c(50, 95))` as follows:
 
-```{r rw-obs-plots, echo = FALSE, out.width = "100%", fig.cap = "Posterior predictive checks. Observed daily deaths (red) is plotted as a bar plot. Credible intervals from the posterior are plotted in shades of blue, in addition to the posterior median in black."}
+```{r rw-obs-plots, echo = FALSE, out.width = "80%", fig.cap = "Posterior predictive checks. Observed daily deaths (red) is plotted as a bar plot. Credible intervals from the posterior are plotted in shades of blue, in addition to the posterior median in black."}
 p <- plot_obs(fm_rw, type = "deaths", levels = c(50, 95))
-p <- p + font + bord + leg + marg
-ggsave("random-walk-obs-plot.png", width=10, height=6)
-knitr::include_graphics("random-walk-obs-plot.png")
+p + font + bord + leg + marg
 ```
 
 The above figure suggests a successful inference result, which gives some confidence to study the reproduction number. As we would expect from the death counts, the reproduction number confirms that the disease has been under control since middle of March, though uncertainty increases towards the end of the observation period.
 
-```{r multilevel-rt-plots, echo = FALSE, cache=FALSE, out.width = "100%", fig.cap = "Inferred reproduction numbers in each country. Credible intervals from the posterior are plotted in shades of green, in addition to the posterior median in black."}
+```{r rw-rt-plots, echo = FALSE, cache=FALSE, out.width = "80%", fig.cap = "Inferred reproduction numbers in each country. Credible intervals from the posterior are plotted in shades of green, in addition to the posterior median in black."}
 p <- plot_rt(fm_rw, step = T, levels = c(50,95))
-p <- p + font + bord + leg + marg
-ggsave("random-walk-rt-plot.png", width=10, height=6)
-knitr::include_graphics("random-walk-rt-plot.png")
+p + font + bord + leg + marg
 ```
 
 # Forecast
@@ -198,17 +194,15 @@ newdata <- filter(newdata, date > date[which(cumsum(deaths) > 10)[1] - 30])
 newdata <- group_by(newdata, country)
 ```
 
-```{r multilevel-forecasting, echo = FALSE, out.width = "100%", fig.cap = "Predictions for the last 30 days. Left: The latent random walk  within the transmission model adds to the uncertainty. Right: Predicted deaths counts."}
+```{r rw-forecasting, echo = FALSE, out.width = "100%", fig.cap = "Predictions for the last 30 days. Left: The latent random walk  within the transmission model adds to the uncertainty. Right: Predicted deaths counts."}
 p1 <- plot_rt(fm_rw, newdata = newdata, step = T, levels = c(50,95))
-#  plot_obs(fm_rw, type = "deaths", newdata = newdata, groups = "Denmark", dates = c(as.Date("2020-04-20"), NA))
+# plot_obs(fm_rw, type = "deaths", newdata = newdata, groups = "Denmark", dates = c(as.Date("2020-04-20"), NA))
 p1 <- p1 + font + bord + leg + marg
 
 p2 <- plot_obs(fm_rw, type = "deaths", newdata = newdata, groups = "Denmark")
 p2 <- p2 + bord + font + marg + leg
 
-g <- arrangeGrob(p1,p2,nrow=1, widths = c(1,1))
-ggsave("forecast.png", g, width=9, height=4.5)
-knitr::include_graphics("forecast.png")
+grid.arrange(p1, p2, ncol=2)
 ```
 
 ##### estimating NPIs
@@ -233,7 +227,7 @@ We can evaluate the choice of predictors and catch obvious mis-specifications of
 With *epidemia*, we simply set `priorPD = TRUE` flag
 in `epim()` and run the MCMC sampler:
 
-```{r npi-prior-sampling, cache=FALSE, warning=FALSE, message=FALSE}
+```{r, cache=FALSE, warning=FALSE, message=FALSE}
 args <- list(rt = rt, inf = inf, obs = deaths, data = data, seed = 12345, 
              refresh = 0)
 pr_args <- c(args, list(algorithm = "sampling", iter = 1e3, prior_PD = TRUE))
@@ -243,12 +237,10 @@ fm_prior <- do.call(epim, pr_args)
 The figure below summarizes samples of the reproduction number
 given the prior distribution. It confirms our expectation of a decreasing step function each time an NPI is implemented.
 
-```{r multilevel-prior, echo = FALSE, out.width = "60%", fig.cap= "A prior predictive check for reproduction numbers $R_t$ in the multilevel model. Only results for the United Kingdom are presented here. The prior median is shown in black, with credible intervals shown in various shades of green. The check appears to confirm that $R_t$ follows a step-function."}
+```{r npi-prior, echo = FALSE, out.width = "80%", fig.cap= "A prior predictive check for reproduction numbers $R_t$ in the multilevel model. Only results for the United Kingdom are presented here. The prior median is shown in black, with credible intervals shown in various shades of green. The check appears to confirm that $R_t$ follows a step-function."}
 p <- plot_rt(fm_prior, group = "Denmark", step = T, 
              levels = seq(10, 90, by = 10))
-p <- p + font + bord + leg 
-ggsave("npi-prior-plot.png", width=8, height=5)
-knitr::include_graphics("npi-prior-plot.png")
+p + font + bord + leg 
 ```
 We proceed as in the previous example, i.e we (1) sample the model including the likelihood to approximate the posterior distributions, (2) evaluate the model fit: 
 
@@ -257,42 +249,33 @@ args <- list(rt = rt, inf = inf, obs = deaths, data = data,
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
+             iter = 1e3,
              control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_npi <- do.call(epim, args)
 ```
 
-```{r npi-posterior, echo = FALSE, out.width = "100%", fig.cap="Left: Posterior predictive check confirms a reasonable it to the observations. Right: Estimated reproduction number under the assumption that Rt is fully parametrized by two NPIs."}
-# plot results
+```{r npi-inference-result, echo = FALSE, out.width = "100%", fig.cap="Left: Posterior predictive check confirms a reasonable it to the observations. Right: Estimated reproduction number under the assumption that Rt is fully parametrized by two NPIs."}
 p1 <- plot_obs(fm_npi, type = "deaths", levels = c(50, 95))
 p1 <- p1 + font + bord + leg + marg + ggtitle("Posterior predictive check")
 
 p2 <- plot_rt(fm_npi, step = T, levels = c(50,95))
 p2 <- p2 + font + bord + leg + marg + ggtitle("inferred reproduction number")
 
-#p1$layers[[4]]$aes_params$size <- 2
-#p2$layers[[4]]$aes_params$size <- 2
-
-g <- arrangeGrob(p1,p2,nrow=1, widths = c(1,1))
-ggsave("npi-posterior-plot.png", g, width=9, height=4.5)
-knitr::include_graphics("npi-posterior-plot.png")
+grid.arrange(p1, p2, ncol=2)
 ```
 
 As a last step, we compare the effect size of both measures.
 To this end, we can access every model parameter with details explained in [multi-level tutorial](https://imperialcollegelondon.github.io/epidemia/articles/europe-covid.html).
 Calling `bayesplot::mcmc_intervals(mat)` eventually, produces the plot below.
 
-```{r effects-plots, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Effect sizes for the two policy measures considered", out.width = "80%"}
+```{r npi-effects, echo=FALSE, warning=FALSE, message=FALSE, fig.cap = "Effect sizes for the two policy measures considered", out.width = "80%"}
 beta <- as.matrix(fm_npi, par_models = "R", par_types = "fixed")
 b_lockdown <- as.matrix(fm_npi, regex_pars = "^R\\|lockdown", par_groups = "Denmark")
 b_events <- as.matrix(fm_npi, regex_pars = "^R\\|public_events", par_groups = "Denmark")
 mat <- cbind(b_lockdown, b_events)
 colnames(mat) <- c("Events", "Lockdown")
-p <- bayesplot::mcmc_intervals(mat) + ggplot2::ggtitle("Effect sizes") + bord + font
-
-ggsave("plot-effects.png", p, width=9, height=4.5)
-knitr::include_graphics("plot-effects.png")
+bayesplot::mcmc_intervals(mat) + ggplot2::ggtitle("Effect sizes") + bord + font
 ```
 
 We find that large negative effects for both NPIs as we would expect. However, be reminded that this is just a toy example to demonstrate inference and results should not be interpreted. In contrast to the figure above, a carefull analysis in [Flaxman et al.](https://www.nature.com/articles/s41586-020-2405-7) with pooling across multiple countries reveals that `lockdown` had by far the strongest impact.
@@ -304,12 +287,13 @@ according to Wikipedia:
 > Counterfactual thinking is a concept in psychology that involves the human tendency to create possible alternatives to life events that have already occurred; something that is contrary to what actually happened. Counterfactual thinking is, as it states: "counter to the facts". These thoughts consist of the "What if?" and the "If I had only..." that occur when thinking of how things could have turned out differently. Counterfactual thoughts include things that – in the present – now could never happen in reality because they solely pertain to events that have occurred in the past.
 
 Counterfactual modelling requires us to keep the inference results as they are and only manipulate the input to the model.
-In other words, if we believe in a causal relationship between the implementation of NPIs and disease transmission (not merely a correlation), then we can examine what would have happened, if NPIs were implemented 30 days later:
+In other words, if we believe in a causal relationship between the implementation of NPIs and disease transmission (not merely a correlation), then we can examine what would have happened, if NPIs were implemented 3 days later:
 
 ```{r}
-shift <- function(x, k) c(rep(0,k), x[-(1:k)])
+#shift <- function(x, k) c(rep(0,k), x[-(1:k)])
+shift <- function(x, k) c(rep(0,k), head(x, -k))
 #shift <- function(x, k) c(x[-(1:k)], rep(0,k))
-days <- 30
+days <- 3
 
 newdata <- read.csv("denmark.csv")
 newdata$week <- week(newdata$date)
@@ -330,16 +314,14 @@ As with predictions on out-of-sample data, we simply provide the data set that i
 intervention to the plotting method and observe the increased number of deaths for this
 hypothetical scenario:
 
-```{r counterfactuals, out.width = "90%", fig.cap = "Results corresponding to a a counterfactual whereby mobility remains at the baseline value. The left plot shows credible intervals for daily deaths under this scenario. The right presents cumulative deaths. The black dotted line shows observed cumulative deaths."}
+```{r npi-interventions, echo = FALSE, out.width = "100%", fig.cap = "Results corresponding to a a counterfactual whereby mobility remains at the baseline value. The left plot shows credible intervals for daily deaths under this scenario. The right presents cumulative deaths. The black dotted line shows observed cumulative deaths."}
 p1 <- plot_obs(fm_npi, type = "deaths", newdata=newdata, groups = "Denmark")
-p2 <-plot_obs(fm_npi, type = "deaths", newdata=newdata, groups = "Denmark", cumulative=T, bar=F)
-legend <- g_legend(p1 + leg)
-p1 <- p1 + font + bord + leg + marg + ggtitle("")
-p2 <- p2 + font + bord + leg + marg + ggtitle("")
+p1 <- p1 + font + bord + leg + marg
 
-g <- arrangeGrob(p1, p2, nrow=1, ncol=2)
-ggsave("counterfactuals.png", g, width=6, height=5)
-knitr::include_graphics("counterfactuals.png")
+p2 <-plot_obs(fm_npi, type = "deaths", newdata=newdata, groups = "Denmark", cumulative=T, bar=F)
+p2 <- p2 + font + bord + leg + marg
+
+grid.arrange(p1, p2, ncol=2)
 ```
 
 
@@ -362,13 +344,13 @@ rt <- epirt(formula = R(country, date) ~ 1 + residential + nonresidential + rw(t
 
 We proceed without prior predictive checks and sample directly from the full model. As in the previous example, we check the fit quality, plot the inferred reproduction number and extract the posterior effect sizes.
 
-```{r mob-sampling, cache=FALSE, warning=FALSE, message=FALSE}
+```{r , cache=FALSE, warning=FALSE, message=FALSE}
 args <- list(rt = rt, inf = inf, obs = deaths, data = data, 
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
-             control = list(max_treedepth = 5))
+             iter = 1e3,
+             control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_mob <- do.call(epim, args)
 ```
@@ -377,7 +359,7 @@ Again, we observe a good fit to the data and as we expected, we find a positive 
 Interestingly the effect sizes appear very small with a considerable zero-overlap compared to the previous example.
 This can in part be explained by the additional flexibility of the model due to the random walk term. Again, however, be reminded that this example is only to demonstrate the modelling approach of *epidemia*.
 
-```{r mob-posterior, echo = FALSE, out.width = "100%", fig.cap="Left: Posterior predictive check confirms a reasonable fit. Middle: Inferred reproduction number under the given assumptions. Right: effect size for residential and non-residential mobility."}
+```{r mobility-inference-result, echo = FALSE, out.width = "100%", fig.cap="Left: Posterior predictive check confirms a reasonable fit. Middle: Inferred reproduction number under the given assumptions. Right: effect size for residential and non-residential mobility."}
 # plot results
 p1 <- plot_obs(fm_mob, type = "deaths", levels = c(50, 95))
 p1 <- p1 + font + bord + leg + marg + ggtitle("Posterior predictive check")
@@ -392,9 +374,7 @@ mat <- cbind(b1, b2)
 colnames(mat) <- c("residential", "non-residential")
 p3 <- bayesplot::mcmc_intervals(mat) + ggplot2::ggtitle("Effect sizes") + bord + font
 
-g <- arrangeGrob(p1,p2,p3, nrow=1, ncol=3)
-ggsave("mob-posterior-plot.png", g, width=9, height=4.5)
-knitr::include_graphics("mob-posterior-plot.png")
+grid.arrange(p1, p2, p3, ncol=3)
 ```
 
 

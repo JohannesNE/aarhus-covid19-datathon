@@ -221,8 +221,8 @@ args <- list(rt = rt, inf = inf, obs = deaths, data = data,
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
-             control = list(max_treedepth = 5))
+             iter = 1e3,
+             control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_rw <- do.call(epim, args)
 ```
@@ -233,7 +233,7 @@ adequately explain the observed deaths. To this end, we use the function
 
 <div class="figure" style="text-align: center">
 
-<img src="random-walk-obs-plot.png" alt="Posterior predictive checks. Observed daily deaths (red) is plotted as a bar plot. Credible intervals from the posterior are plotted in shades of blue, in addition to the posterior median in black." width="100%" />
+<img src="figs/rw-obs-plots-1.png" alt="Posterior predictive checks. Observed daily deaths (red) is plotted as a bar plot. Credible intervals from the posterior are plotted in shades of blue, in addition to the posterior median in black." width="80%" />
 <p class="caption">
 Posterior predictive checks. Observed daily deaths (red) is plotted as a
 bar plot. Credible intervals from the posterior are plotted in shades of
@@ -250,7 +250,7 @@ increases towards the end of the observation period.
 
 <div class="figure" style="text-align: center">
 
-<img src="random-walk-rt-plot.png" alt="Inferred reproduction numbers in each country. Credible intervals from the posterior are plotted in shades of green, in addition to the posterior median in black." width="100%" />
+<img src="figs/rw-rt-plots-1.png" alt="Inferred reproduction numbers in each country. Credible intervals from the posterior are plotted in shades of green, in addition to the posterior median in black." width="80%" />
 <p class="caption">
 Inferred reproduction numbers in each country. Credible intervals from
 the posterior are plotted in shades of green, in addition to the
@@ -275,7 +275,7 @@ newdata <- group_by(newdata, country)
 
 <div class="figure" style="text-align: center">
 
-<img src="forecast.png" alt="Predictions for the last 30 days. Left: The latent random walk  within the transmission model adds to the uncertainty. Right: Predicted deaths counts." width="100%" />
+<img src="figs/rw-forecasting-1.png" alt="Predictions for the last 30 days. Left: The latent random walk  within the transmission model adds to the uncertainty. Right: Predicted deaths counts." width="100%" />
 <p class="caption">
 Predictions for the last 30 days. Left: The latent random walk within
 the transmission model adds to the uncertainty. Right: Predicted deaths
@@ -328,7 +328,7 @@ function each time an NPI is implemented.
 
 <div class="figure" style="text-align: center">
 
-<img src="npi-prior-plot.png" alt="A prior predictive check for reproduction numbers $R_t$ in the multilevel model. Only results for the United Kingdom are presented here. The prior median is shown in black, with credible intervals shown in various shades of green. The check appears to confirm that $R_t$ follows a step-function." width="60%" />
+<img src="figs/npi-prior-1.png" alt="A prior predictive check for reproduction numbers $R_t$ in the multilevel model. Only results for the United Kingdom are presented here. The prior median is shown in black, with credible intervals shown in various shades of green. The check appears to confirm that $R_t$ follows a step-function." width="80%" />
 <p class="caption">
 A prior predictive check for reproduction numbers *R*<sub>*t*</sub> in
 the multilevel model. Only results for the United Kingdom are presented
@@ -348,7 +348,7 @@ args <- list(rt = rt, inf = inf, obs = deaths, data = data,
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
+             iter = 1e3,
              control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_npi <- do.call(epim, args)
@@ -356,7 +356,7 @@ fm_npi <- do.call(epim, args)
 
 <div class="figure" style="text-align: center">
 
-<img src="npi-posterior-plot.png" alt="Left: Posterior predictive check confirms a reasonable it to the observations. Right: Estimated reproduction number under the assumption that Rt is fully parametrized by two NPIs." width="100%" />
+<img src="figs/npi-inference-result-1.png" alt="Left: Posterior predictive check confirms a reasonable it to the observations. Right: Estimated reproduction number under the assumption that Rt is fully parametrized by two NPIs." width="100%" />
 <p class="caption">
 Left: Posterior predictive check confirms a reasonable it to the
 observations. Right: Estimated reproduction number under the assumption
@@ -374,7 +374,7 @@ below.
 
 <div class="figure" style="text-align: center">
 
-<img src="plot-effects.png" alt="Effect sizes for the two policy measures considered" width="80%" />
+<img src="figs/npi-effects-1.png" alt="Effect sizes for the two policy measures considered" width="80%" />
 <p class="caption">
 Effect sizes for the two policy measures considered
 </p>
@@ -407,12 +407,13 @@ Counterfactual modelling requires us to keep the inference results as
 they are and only manipulate the input to the model. In other words, if
 we believe in a causal relationship between the implementation of NPIs
 and disease transmission (not merely a correlation), then we can examine
-what would have happened, if NPIs were implemented 30 days later:
+what would have happened, if NPIs were implemented 3 days later:
 
 ``` r
-shift <- function(x, k) c(rep(0,k), x[-(1:k)])
+#shift <- function(x, k) c(rep(0,k), x[-(1:k)])
+shift <- function(x, k) c(rep(0,k), head(x, -k))
 #shift <- function(x, k) c(x[-(1:k)], rep(0,k))
-days <- 30
+days <- 3
 
 newdata <- read.csv("denmark.csv")
 newdata$week <- week(newdata$date)
@@ -433,21 +434,9 @@ As with predictions on out-of-sample data, we simply provide the data
 set that includes the intervention to the plotting method and observe
 the increased number of deaths for this hypothetical scenario:
 
-``` r
-p1 <- plot_obs(fm_npi, type = "deaths", newdata=newdata, groups = "Denmark")
-p2 <-plot_obs(fm_npi, type = "deaths", newdata=newdata, groups = "Denmark", cumulative=T, bar=F)
-legend <- g_legend(p1 + leg)
-p1 <- p1 + font + bord + leg + marg + ggtitle("")
-p2 <- p2 + font + bord + leg + marg + ggtitle("")
-
-g <- arrangeGrob(p1, p2, nrow=1, ncol=2)
-ggsave("counterfactuals.png", g, width=6, height=5)
-knitr::include_graphics("counterfactuals.png")
-```
-
 <div class="figure" style="text-align: center">
 
-<img src="counterfactuals.png" alt="Results corresponding to a a counterfactual whereby mobility remains at the baseline value. The left plot shows credible intervals for daily deaths under this scenario. The right presents cumulative deaths. The black dotted line shows observed cumulative deaths." width="90%" />
+<img src="figs/npi-interventions-1.png" alt="Results corresponding to a a counterfactual whereby mobility remains at the baseline value. The left plot shows credible intervals for daily deaths under this scenario. The right presents cumulative deaths. The black dotted line shows observed cumulative deaths." width="100%" />
 <p class="caption">
 Results corresponding to a a counterfactual whereby mobility remains at
 the baseline value. The left plot shows credible intervals for daily
@@ -486,8 +475,8 @@ args <- list(rt = rt, inf = inf, obs = deaths, data = data,
              seed = 12345, 
              #refresh = 0,
              algorithm = "sampling",
-             iter = 4e3,
-             control = list(max_treedepth = 5))
+             iter = 1e3,
+             control = list(max_treedepth = 6))
 #             tol_rel_obj = 1e-3)
 fm_mob <- do.call(epim, args)
 ```
@@ -502,7 +491,7 @@ example is only to demonstrate the modelling approach of *epidemia*.
 
 <div class="figure" style="text-align: center">
 
-<img src="mob-posterior-plot.png" alt="Left: Posterior predictive check confirms a reasonable fit. Middle: Inferred reproduction number under the given assumptions. Right: effect size for residential and non-residential mobility." width="100%" />
+<img src="figs/mobility-inference-result-1.png" alt="Left: Posterior predictive check confirms a reasonable fit. Middle: Inferred reproduction number under the given assumptions. Right: effect size for residential and non-residential mobility." width="100%" />
 <p class="caption">
 Left: Posterior predictive check confirms a reasonable fit. Middle:
 Inferred reproduction number under the given assumptions. Right: effect
