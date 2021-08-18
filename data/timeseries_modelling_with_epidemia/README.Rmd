@@ -307,7 +307,7 @@ Counterfactual modelling requires us to keep the inference results as they are a
 In other words, if we believe in a causal relationship between the implementation of NPIs and disease transmission (not merely a correlation), then we can examine what would have happened, if NPIs were implemented 30 days later:
 
 ```{r}
-shift <- function(x, k) c(rep(0,k), x[-(1:k)])
+shift <- function(x, k) c(rep(0,k), x[1:(length(x)-k)])
 #shift <- function(x, k) c(x[-(1:k)], rep(0,k))
 days <- 30
 
