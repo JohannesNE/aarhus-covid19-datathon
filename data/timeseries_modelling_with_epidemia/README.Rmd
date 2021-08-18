@@ -21,7 +21,7 @@ extrafont::loadfonts()
 
 text_size <- 7
 leg <- theme(legend.text = element_text(size=text_size), legend.title = element_text(size=text_size), legend.key.size = unit(0.3, "cm"))
-bord <- theme(panel.border = element_rect(fill=NA, colour="black", size=1))
+bord <- theme(panel.border = element_rect(fill=NA, colour="black", size=1), plot.background = element_rect(fill = "white"))
 font <- theme(axis.text.x = element_text(size=text_size), axis.text.y= element_text(size=text_size), plot.title = element_text(size=text_size),
                strip.text.x =  element_text(size=text_size))
 marg <- theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
