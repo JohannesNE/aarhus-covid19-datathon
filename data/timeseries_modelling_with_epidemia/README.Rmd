@@ -8,7 +8,7 @@ output: rmarkdown::github_document
 knitr::opts_chunk$set(
   fig.height = 4, fig.width = 5,
   out.width = "80%", fig.align = "center",
-  dpi = 150,
+  dpi = 300,
   fig.path = "figs/",
   message = FALSE,
   warning = FALSE,
