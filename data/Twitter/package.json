@@ -1,0 +1,15 @@
+{
+  "name": "twitter-academic-search",
+  "version": "1.0.0",
+  "dependencies": {
+    "await-lock": "^2.1.0",
+    "commander": "^7.1.0",
+    "delay": "^5.0.0",
+    "got": "^11.8.2",
+    "lodash": "^4.17.21",
+    "luxon": "^1.26.0",
+    "n-readlines": "^1.0.1",
+    "oauth-1.0a": "^2.2.6",
+    "twitter-lite": "^1.1.0"
+  }
+}
