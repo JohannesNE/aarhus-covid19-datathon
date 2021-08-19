@@ -21,6 +21,8 @@ Here, you will find some introductions to the main datasets we expect to be util
   *The level of restrictions imposed by different governments at any time during the pandemic*
   
   - [Social Compliance During High Stringency Periods Eciently Reduces COVID-19 Incidence: Evidence from **Google Mobility Reports**](data/social-compliance/)
+  
+  - [Genomic data from GISAID](data/GISAID/)
 
   
 ## Other relevant data
