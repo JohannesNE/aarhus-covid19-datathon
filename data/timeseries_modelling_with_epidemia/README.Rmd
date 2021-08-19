@@ -6,9 +6,9 @@ output: rmarkdown::github_document
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(
-  fig.height = 4, fig.width = 5,
+  fig.height = 4, fig.width = 6,
   out.width = "80%", fig.align = "center",
-  dpi = 300,
+  dpi = 200,
   fig.path = "figs/",
   message = FALSE,
   warning = FALSE,
@@ -376,7 +376,10 @@ mat <- cbind(b1, b2)
 colnames(mat) <- c("residential", "non-residential")
 p3 <- bayesplot::mcmc_intervals(mat) + ggplot2::ggtitle("Effect sizes") + bord + font
 
-grid.arrange(p1, p2, p3, ncol=3)
+grid.arrange(p1, p2, p3, 
+             layout_matrix = rbind(c(1,2),
+                                   c(3,3)), 
+             heights = c(2,1))
 ```
 
 
