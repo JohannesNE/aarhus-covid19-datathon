@@ -136,7 +136,7 @@ infection fatality rate (IFR), which assumes that IFR is constant over
 time. The `link` function asserts that the IFR stays between 0% and 2%
 and the `prior_intercept` reflects our assumption that IFR is close to
 1%. The infection-to-observation distribution `i2o` is provided by the
-`EuropeCovid2` data set. As a side note, on could use more elaborate
+`EuropeCovid2` data set. As a side note, one could use more elaborate
 models for the ascertainment rate, such as a latent random walk to track
 changes over time or fit predictors such as the number of PCR and
 antigen test for an observation model of case counts.
