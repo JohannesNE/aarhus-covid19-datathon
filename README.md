@@ -24,6 +24,9 @@ Here, you will find some introductions to the main datasets we expect to be util
   
   - [Genomic data from GISAID](data/GISAID/)
 
+  - [Code for working with Twitter data](data/Twitter/)
+  The data itself is available on request from <https://sciencedata.dk/>. *Instructions will follow*.
+  
   
 ## Other relevant data
 
