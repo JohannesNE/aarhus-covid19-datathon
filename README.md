@@ -12,6 +12,8 @@ Here, you will find some introductions to the main datasets we expect to be util
   - [Plotting Danish geographical regions](data/DK-geographical-regions/)
   
   - [Using mobility data from telecompanies](data/Mobility-telco/)
+  
+  - [HOPE questionaire](data/HOPE-questionaire/)
 
   - [Datasets for analyzing changes in SARS-CoV-2 incidence during and after the European Football Championship 2020](data/Euro2020/)
   

@@ -18,14 +18,33 @@ knitr::opts_chunk$set(
 Answers from the daily questionnaires from the [HOPE project](https://hope-project.dk/#/) will be available during the datathon.
 The data is aggregated to daily counts for each answers for each question. The data is provided as a .dta (STATA) file and can be read using the [{haven}](https://haven.tidyverse.org/) package.
 
+> :bulb: NB. The HOPE project team is still in the process of analysing and publishing their data. We therefore ask that you invite the HOPE team as collaborators if you wish to publish results based on this dataset. This is both to ensure scientific quality (the team has expertise and access to the uncensored dataset), and to ensure the HOPE team is not "scooped" because of kindly making their data available for this event.
+
+The questions participants have been asked (translated to English) can be found in the [codebook](./questions.md).
+
+First, we load packages
+
 ```{r}
 library(tidyverse)
-library(haven)
+library(haven) # Used to read STATA files
 ```
+
+Then, we load data
 
 ```{r}
 attitudes <- read_dta("distributions_attitudes.dta")
 head(attitudes)
+```
+
+> Censoring :black_large_square: : For privacy reasons, any count below 5 is replaced with 0. For statistical analysis it could be sensible to replace this with a reasonable mean for these responses (e.g. 2). In this example we will just treat it as 0.
+
+Questions regarding number of recent contacts have many possible answers are therefore provided in a separate file.
+
+```{r}
+contacts <- read_dta("distributions_contacts.dta") %>% 
+    mutate(across(starts_with("Q"), replace_na, 0), # In the contacts file, NA represents < 5 responses
+           contacts = ifelse(contacts == 999, 25, contacts)) # 999 represents >20 contacts. In this example we treat this as 25 contacts.
+head(contacts)
 ```
 
 ## The structure
@@ -34,24 +53,27 @@ head(attitudes)
  - Columns ending with `_labels` are labelled categorical values (similar to factors) corresponding to each possible answer to a question.
  - Remaining columns (e.g. Q1_1) counts the number of participants who have given a specific answer (corresponding the to `_labels` column left of it) on a given date.
  
- 
 ## Label columns
 
-The labelled columns can be converted to a factor with `labelled::to_factor`
+The labelled columns can be converted to a factor with `haven::as_factor`.
+
+Here is an example of labels with *labelled* class.
 
 ```{r}
 attitudes$attitude_labels %>% head(10)
 ```
 
+Here they are, converted to a factor
+
 ```{r}
-labelled::to_factor(attitudes$attitude_labels) %>% head(10)
+as_factor(attitudes$attitude_labels, levels = "both") %>% head(10)
 ```
 
-Here, we make a second version of all `_labels` columns, converted to a factor:
+For convenience (especially for plots), we make a second version of all `_labels` columns, converted to a factor:
 
 ```{r}
 attitudes <- attitudes %>% 
-    mutate(across(ends_with("_labels"), labelled::to_factor, levels = "labels", decreasing = TRUE, .names = "{.col}_2"))
+    mutate(across(ends_with("_labels"), as_factor, levels = "both", .names = "{.col}_2"))
 
 attitudes$mask_labels_2 %>% head(10)
 ```
@@ -76,7 +98,7 @@ We can illustrate the daily distribution in answers using a stacked bar plot of 
 ```{r fig.height=4, fig.width=10}
 ggplot(attitudes_prop, aes(date, Q1_1 * 100, fill = fct_relevel(attitude_labels_2, "Don't know", after = Inf))) +
     geom_col(position = "stack", width = 1) +
-    labs(title = "Q1.1 - I hvilken grad føler du, at du er udsat i forhold til coronavirussen?",
+    labs(title = "Q1_1 - To what degree do you feel, that you are exposed regarding the Corona virus",
          fill = "Answer",
          y = "Proportion [%]")
 ```
