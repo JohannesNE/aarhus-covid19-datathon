@@ -19,3 +19,11 @@ Analyses should account for the proportion of individuals vaccinated in the give
 of the delta variant during the relevant time period.
 
 Alternative analysis plans are more than welcome and may also replace the above mentioned.
+
+## Simple example
+[Investigating the effect of the beginning of the European football championship on the number of confirmed daily SARS-CoV-2 cases in Denmark](https://github.com/lclun/aarhus-covid19-datathon/blob/main/data/Euro2020/example.md)
+
+## Relevant literature
+[Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions: a tutorial. Int J Epidemiol. 2017 Feb;46(1):348–55.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5407170/)  
+[Haber NA, Clarke-Deelder E, Salomon JA, Feller A, Stuart EA. COVID-19 Policy Impact Evaluation: A guide to common design issues. American Journal of Epidemiology. 2021 Jun 28;kwab185.](https://academic.oup.com/aje/advance-article/doi/10.1093/aje/kwab185/6310594)  
+[Palladino R, Bollon J, Ragazzoni L, Barone-Adesi F. Excess Deaths and Hospital Admissions for COVID-19 Due to a Late Implementation of the Lockdown in Italy. IJERPH. 2020 Aug 5;17(16):5644.](https://www.mdpi.com/1660-4601/17/16/5644)
