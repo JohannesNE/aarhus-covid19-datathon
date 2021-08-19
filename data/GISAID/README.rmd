@@ -2,12 +2,7 @@
 title: "Working with data from GISaid mutation pipeline (snpeff annotated mutations)"
 author: "Palle Villesen"
 date: 'Last update: `r Sys.time()`'
-output: 
-  html_document:
-    theme: united
-    code_folding: hide
-    toc: true
-    toc_depth: 2 
+output: github_document
 editor_options: 
   chunk_output_type: console
 --- 
@@ -32,15 +27,20 @@ theme_set(theme_cowplot(font_size = text_base_size,
                         rel_small = 1, rel_tiny = 1, 
                         rel_large = 1))
 
-knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
-knitr::opts_chunk$set(fig.height = fig.height/25.4)
-knitr::opts_chunk$set(dpi = 108)
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4,
+                      fig.height = fig.height/25.4,
+                      dpi = 108,
+                      fig.path = "figs/",
+                      message = FALSE,
+                      warning = FALSE)
 
-x <- Sys.setlocale(locale = "English")
+x <- Sys.setlocale(locale = "en_GB.utf8")
 rm(x)
 ```
 
 # Load data
+
+Data is generated from [GISAID](https://www.gisaid.org/) and will be provided at the event.
 
 ```{r}
 
