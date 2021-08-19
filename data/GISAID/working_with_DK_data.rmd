@@ -1,0 +1,282 @@
+---
+title: "Working with data from GISaid mutation pipeline (snpeff annotated mutations)"
+author: "Palle Villesen"
+date: 'Last update: `r Sys.time()`'
+output: 
+  html_document:
+    theme: united
+    code_folding: hide
+    toc: true
+    toc_depth: 2 
+editor_options: 
+  chunk_output_type: console
+--- 
+
+# Init
+
+```{r, message=F, warning=F}
+
+library(tidyverse)
+library(cowplot)  # For theme
+library(lubridate)
+library(ggsci)
+library(ggrepel)
+
+text_base_size   <- 12
+fig.witdh        <- 210
+fig.height       <- 160
+
+ggplot_text_size <- text_base_size / ggplot2::.pt
+# Now use: geom_text(..., size = ggplot_text_size)
+theme_set(theme_cowplot(font_size = text_base_size, 
+                        rel_small = 1, rel_tiny = 1, 
+                        rel_large = 1))
+
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
+knitr::opts_chunk$set(fig.height = fig.height/25.4)
+knitr::opts_chunk$set(dpi = 108)
+
+x <- Sys.setlocale(locale = "English")
+rm(x)
+```
+
+# Load data
+
+```{r}
+
+mutations <- read_tsv(file = "mutations_snpeff_annotated_tidy_Denmark.tsv")
+metadata  <- read_tsv(file = "metadata_snpeff_tidy_Denmark.tsv")
+
+# List of pangolin lineages to include in the analysis
+interesting_lineages <- c("B.1",   # The D614G mutation defines this lineage back in early 2020
+                       "B.1.1.7",  # British  = ALFA
+                       "B.1.617.2" # Indian variant = DELTA
+                       )
+
+# Mutations to track
+interesting_mutations <- c("D614G", "N501Y", "E484K", "E484Q", "T478K","L452R", "P681R") 
+
+```
+
+# Data structure for metadata
+
+```{r}
+
+x <- head(mutations, n = 1) %>% t()
+
+tibble(variable = rownames(x), value=x[,1]) %>% knitr::kable()
+
+rm(x)
+
+head(mutations, n=5) %>% knitr::kable()
+
+```
+
+# Data structure for mutations
+
+```{r}
+
+x <- head(metadata, n = 1) %>% t()
+
+tibble(variable = rownames(x), value=x[,1]) %>% knitr::kable()
+
+rm(x)
+
+head(metadata, n=5) %>% knitr::kable()
+
+```
+
+# Overview of data
+
+```{r}
+
+pd <- tibble() %>%
+  bind_rows(tibble("Description" = "Genomes total (metadata)", 
+                   "n" = metadata %>% select(id) %>% distinct() %>% count() %>% pull(n) )) %>%
+  bind_rows(tibble("Description" = "Genomes with mutations (mutations)", 
+                   "n" = mutations %>% select(id) %>% distinct() %>% count() %>% pull(n) )) %>%
+  bind_rows(tibble("Description" = "Mutations in these genomes", 
+                   "n" = mutations %>% distinct(id, position) %>% count() %>% pull(n))) %>%
+  bind_rows(tibble("Description" = "Sites with Synonymous mutations",
+                   "n" = mutations %>% filter(type=="S") %>% select(position) %>% distinct() %>% count() %>% pull(n) )) %>%
+  bind_rows(tibble("Description" = "Sites with Nonsynonymous mutations",
+                   "n" = mutations %>% filter(type=="N") %>% select(position) %>% distinct() %>% count() %>% pull(n) )) %>%
+  {.}
+
+knitr::kable(pd)
+
+```
+
+# Examples
+
+## Genomes sampled pr. week
+
+```{r}
+
+pd <- metadata %>%
+  filter(species=="Human") %>%
+  mutate(date_bin = cut(date, breaks = "1 week")) %>%
+  mutate(pango2 = ifelse(pangolin_lineage %in% interesting_lineages, pangolin_lineage, "Other lineages")) %>%
+  group_by(date_bin, pango2) %>%
+  count()
+
+newlevels <- sort(levels(pd$date_bin))
+
+pd <- pd %>% 
+  mutate(date_bin = fct_relevel(date_bin, newlevels)) %>% 
+  ungroup() %>%
+  mutate(date_bin=ymd(date_bin))
+
+ggplot(pd, aes(x=date_bin, y=n, fill=pango2)) + 
+  geom_col() +
+  scale_fill_discrete("Lineage") +
+  xlab("Sample collection date") +
+  ylab("Number of genomes") +
+  NULL
+
+```
+
+## Mutational clock
+
+```{r}
+
+# Get mutations pr genome
+tmp <- mutations %>% 
+  group_by(id) %>% 
+  distinct(position) %>%
+  summarise(mutations = n())
+
+# Merge with metadata to get the date and lineage
+pd <- metadata %>% 
+  left_join(tmp) %>%
+  filter(species=="Human") %>%
+  mutate(pango2 = ifelse(pangolin_lineage %in% interesting_lineages,
+                         pangolin_lineage, "Other lineages")) %>%
+  select(id, mutations,everything()) %>%
+  group_by(date,mutations,pango2) %>%
+  summarise(num_genomes_with_n_mutations = n()) 
+
+ggplot(pd, aes(x=date, y=mutations, color=pango2, size=num_genomes_with_n_mutations)) +
+  geom_point() + 
+  NULL
+
+metadata %>% 
+  left_join(tmp) %>%
+  filter(species=="Human") %>% filter(mutations==0)
+
+```
+
+## Rise and fall of the N501Y mutation in Denmark
+
+```{r}
+
+tmp1 <- mutations %>%
+  filter(gene=="S" & aa_change=="N501Y")
+
+pd <- metadata %>%
+  filter(species=="Human") %>%
+  mutate(mutation = ifelse(id %in% tmp1$id, "mutated", "Other")) %>%
+  mutate(date_bin = cut(date, breaks = "7 days")) %>%
+  group_by(date_bin, country) %>%
+  count(mutation)
+
+newlevels <- sort(levels(pd$date_bin))
+
+pd <- pd %>% 
+  mutate(date_bin = fct_relevel(date_bin, newlevels)) %>% 
+  ungroup() %>%
+  mutate(date_bin=ymd(date_bin)) %>%
+  pivot_wider(names_from = mutation, values_from=n, values_fill =0) %>%
+  {.}
+
+ggplot(pd, aes(x=date_bin, y=mutated/(mutated+Other), 
+               size=mutated+Other) ) + 
+  geom_point() +
+  geom_line(size=1) +
+  xlab("") +
+  ylab("Proportion of genomes with mutation") +
+  scale_size("Number of genomes") +
+  ggsci::scale_color_aaas(name="") +
+  ggtitle("Growth of N501Y pr. week") +
+  NULL
+
+```
+
+## Rise of the spike L452R variant in Denmark
+
+```{r}
+
+tmp1 <- mutations %>%
+  filter(gene=="S" & aa_change=="L452R")
+
+pd <- metadata %>%
+  filter(species=="Human") %>%
+  mutate(mutation = ifelse(id %in% tmp1$id, "mutated", "Other")) %>%
+  mutate(date_bin = cut(date, breaks = "7 days")) %>%
+  group_by(date_bin, country) %>%
+  count(mutation)
+
+newlevels <- sort(levels(pd$date_bin))
+
+pd <- pd %>% 
+  mutate(date_bin = fct_relevel(date_bin, newlevels)) %>% 
+  ungroup() %>%
+  mutate(date_bin=ymd(date_bin)) %>%
+  pivot_wider(names_from = mutation, values_from=n, values_fill =0) %>%
+  {.}
+
+ggplot(pd, aes(x=date_bin, y=mutated/(mutated+Other), 
+               size=mutated+Other) ) + 
+  geom_point() +
+  geom_line(size=1) +
+  xlab("") +
+  ylab("Proportion of genomes with mutation") +
+  scale_size("Number of genomes") +
+  ggsci::scale_color_aaas(name="") +
+  ggtitle("Growth of L452R pr. week") +
+  NULL
+
+```
+
+## History of interesting mutations
+
+```{r}
+
+tmp1 <- mutations %>%
+  filter(gene=="S" & aa_change %in% interesting_mutations)
+
+pd <- metadata %>%
+  filter(species=="Human") %>%
+  left_join(tmp1) %>%
+  mutate(date_bin = cut(date, breaks = "7 days")) %>%
+  group_by(date_bin) %>%
+  count(aa_change)
+
+pd2 <- metadata %>%
+  filter(species=="Human") %>%
+  mutate(date_bin = cut(date, breaks = "7 days")) %>%
+  group_by(date_bin) %>%
+  count() %>%
+  rename(total_genomes=n)
+
+pd <- pd %>% 
+  ungroup() %>%
+  group_by(date_bin) %>%
+  mutate(aa_change = factor(aa_change, levels = c(interesting_mutations, "Other"))) %>%
+  left_join(pd2) %>%
+  filter(!is.na(aa_change)) %>%
+  {.}
+
+pd <- pd %>% mutate(date_bin = ymd(date_bin)) %>% arrange(desc(date_bin))
+
+ggplot(pd, aes(x=date_bin, y=n/total_genomes, color=aa_change)) + 
+  geom_point() +
+  geom_line() +
+  xlab("") +
+  ylab("Proportion of genomes sequenced pr. week") +
+  ggsci::scale_color_aaas(name="") +
+  facet_wrap(~aa_change) +
+  NULL
+
+```
+
