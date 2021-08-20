@@ -6,6 +6,8 @@ This dataset is derived from [Infomedia](Infomedia.dk), a proprietary Danish med
 
 Unfortunately, we are not allowed to share the text itself, so instead we are sharing the inferred [LDA](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation) topic distributions of each article in addition to the 10 most associated words within that topic.
 
+[Derived newspaper data is available here]("https://sciencedata.dk/shared/99c59fb49bd67062881050781322a0b8")
+
 We have trained two topic models: one on omnibus newspapers and one on tabloid newspapers as their reporting styles are different.
 
 
